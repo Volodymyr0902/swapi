@@ -1,38 +1,45 @@
-import {ExecutionContext, Injectable} from '@nestjs/common';
-import { CreatePersonDto } from './dto/create-person.dto';
-import { UpdatePersonDto } from './dto/update-person.dto';
+import {CreatePersonDto} from './dto/create-person.dto';
+import {UpdatePersonDto} from './dto/update-person.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Person} from "./entities/person.entity";
 import {Repository} from "typeorm";
 import {PaginationDto} from "../common/dto/pagination.dto";
+import {RelationsCompleterService} from "../common/services/relations-completer.service";
 
-@Injectable()
 export class PeopleService {
-  constructor(@InjectRepository(Person) private readonly personRepository: Repository<Person>) {}
+    constructor(@InjectRepository(Person) private readonly personRepository: Repository<Person>,
+                private readonly relationsCompleter: RelationsCompleterService<Person>) {
+    }
 
-  create(createPersonDto: CreatePersonDto) {
-    const newPerson = this.personRepository.create(createPersonDto);
-    console.log(newPerson);
+    async create(createPersonDto: CreatePersonDto) {
+        const person = await this.relationsCompleter.forCreate(createPersonDto, Person);
+        return this.personRepository.save(person);
+    }
 
-    return this.personRepository.save(newPerson);
-  }
+    findAll(paginationDto: PaginationDto) {
+        const {page, limit} = paginationDto;
+        const skip = page * limit - limit;
 
-  findAll(paginationDto: PaginationDto) {
-    const {page = 1, limit = 10} = paginationDto;
-    const skip = page * limit - limit;
+        return this.personRepository.find({
+            skip,
+            take: limit,
+            relations: this.personRepository.metadata.relations.map(rel => rel.propertyName)
+        });
+    }
 
-    return this.personRepository.find({skip, take: limit});
-  }
+    findOne(id: number) {
+        return this.personRepository.findOne({
+            where: {id},
+            relations: this.personRepository.metadata.relations.map(rel => rel.propertyName)
+        });
+    }
 
-  findOne(id: number) {
-    return this.personRepository.findOneBy({id});
-  }
+    async update(id: number, updatePersonDto: UpdatePersonDto) {
+        const completedPerson = await this.relationsCompleter.forUpdate(id, updatePersonDto, Person);
+        return this.personRepository.save(completedPerson);
+    }
 
-  update(id: number, updatePersonDto: UpdatePersonDto) {
-    return this.personRepository.update(id, updatePersonDto);
-  }
-
-  remove(id: number) {
-    return this.personRepository.delete(id);
-  }
+    remove(id: number) {
+        return this.personRepository.delete(id);
+    }
 }
