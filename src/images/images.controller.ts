@@ -6,7 +6,7 @@ import {
     Param,
     Delete,
     UseInterceptors,
-    UploadedFile, Query, ParseFilePipe, FileTypeValidator,
+    UploadedFile, Query, ParseFilePipe, FileTypeValidator, HttpStatus,
 } from '@nestjs/common';
 import {ImagesService} from './images.service';
 import {CreateImageDto} from './dto/create-image.dto';
@@ -14,11 +14,25 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {PaginationDto} from "../common/dto/pagination.dto";
 import {ImageTypeValidator} from "./validators/image-type.validator";
 import {IMAGE_MIME_REGEX} from "../common/constants";
+import {
+    ApiBadRequestResponse,
+    ApiConsumes,
+    ApiCreatedResponse,
+    ApiNoContentResponse, ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation
+} from "@nestjs/swagger";
+import {GeneralResponseInterceptor} from "../common/interceptors/general-response.interceptor";
 
 @Controller('images')
+@UseInterceptors(GeneralResponseInterceptor)
 export class ImagesController {
     constructor(private readonly imagesService: ImagesService) {}
 
+    @ApiOperation({summary: 'Creates an image related to another item'})
+    @ApiCreatedResponse({description: HttpStatus["201"]})
+    @ApiBadRequestResponse({description: HttpStatus["400"]})
+    @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor('file'))
     @Post()
     create(@Body() createImageDto: CreateImageDto, @UploadedFile(new ParseFilePipe({
@@ -27,16 +41,25 @@ export class ImagesController {
         return this.imagesService.create(file, createImageDto);
     }
 
+    @ApiOperation({summary: 'Retrieves queried page and number of images metadata'})
+    @ApiOkResponse({description: HttpStatus["200"]})
+    @ApiNoContentResponse({description: HttpStatus["204"]})
     @Get()
     findAll(@Query() paginationDto: PaginationDto) {
         return this.imagesService.findAll(paginationDto);
     }
 
+    @ApiOperation({summary: 'Retrieves unique image as a file'})
+    @ApiOkResponse({description: HttpStatus["200"]})
+    @ApiNotFoundResponse({description: HttpStatus["404"]})
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.imagesService.findOne(+id);
     }
 
+    @ApiOperation({summary: 'Deletes image and its metadata'})
+    @ApiOkResponse({description: HttpStatus["200"]})
+    @ApiNotFoundResponse({description: HttpStatus["404"]})
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.imagesService.remove(+id);

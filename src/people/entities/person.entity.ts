@@ -25,13 +25,13 @@ export class Person {
     @Column()
     birth_year: string;
 
-    @Column()
+    @Column({default: "n/a"})
     eye_color: string;
 
-    @Column()
+    @Column({default: "n/a"})
     gender: string;
 
-    @Column()
+    @Column({default: "n/a"})
     hair_color: string;
 
     @Column()

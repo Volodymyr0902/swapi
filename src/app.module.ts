@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PeopleModule } from './people/people.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import { ImagesModule } from './images/images.module';
@@ -20,7 +18,7 @@ import {dataSourceOptions} from "./data-source";
     VehiclesModule,
     SpeciesModule,
     PlanetsModule],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
