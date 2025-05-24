@@ -26,7 +26,7 @@ export class Film {
     @Column("integer")
     episode_id: number;
 
-    @Column()
+    @Column("text")
     opening_crawl: string;
 
     @Column()

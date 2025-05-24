@@ -8,7 +8,6 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {Image} from "../../images/entities/image.entity";
-import {Vehicle} from "../../vehicles/entities/vehicle.entity";
 import {Person} from "../../people/entities/person.entity";
 import {Film} from "../../films/entities/film.entity";
 
@@ -44,7 +43,7 @@ export class Specie {
     @Column()
     language: string;
 
-    @Column()
+    @Column({default: "n/a"})
     homeworld: string;
 
     @ManyToMany(() => Person, (person) => person.species, {onDelete: "CASCADE"})

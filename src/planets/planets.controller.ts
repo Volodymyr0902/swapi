@@ -38,6 +38,7 @@ export class PlanetsController {
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
   @Get(':id')
+  @UseInterceptors(RelationsToIdsInterceptor)
   findOne(@Param('id') id: string) {
     return this.planetsService.findOne(+id);
   }

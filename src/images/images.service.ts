@@ -8,12 +8,14 @@ import {createReadStream} from 'fs';
 import * as path from "node:path";
 import {PaginationDto} from "../common/dto/pagination.dto";
 import {lookup} from "mime-types"
-import {IMAGES_PATH} from "../common/constants";
-import * as process from "node:process";
+import {BINARY_FILE, IMAGES_PATH} from "../common/constants";
+import {ConfigService} from "@nestjs/config";
+import {AppEnvVars} from "../common/types/env-vars.type";
 
 @Injectable()
 export class ImagesService {
-    constructor(@InjectRepository(Image) private readonly imagesRepository: Repository<Image>) {}
+    constructor(@InjectRepository(Image) private readonly imagesRepository: Repository<Image>,
+                private readonly configService: ConfigService) {}
 
     async create(file: Express.Multer.File, createImageDto: CreateImageDto) {
         const {entityId, entityName} = createImageDto;
@@ -26,7 +28,9 @@ export class ImagesService {
         const savedImage = await this.imagesRepository.save(newImage);
 
         const {id} = savedImage;
-        savedImage.url = `http://localhost:8080/images/${id}`
+        const {protocol, host, port} = this.configService.get<AppEnvVars>('app')!;
+        const tableName = this.imagesRepository.metadata.tableName
+        savedImage.url = `${protocol}://${host}:${port}/${tableName}/${id}`
 
         return this.imagesRepository.save(savedImage);
     }
@@ -39,16 +43,16 @@ export class ImagesService {
     }
 
     async findOne(id: number) {
-        const imageData = await this.imagesRepository.findOneByOrFail({id});
-        const imgPath = this.composePath(imageData.fileName);
-        const imageFile = createReadStream(imgPath)
+        const imgData = await this.imagesRepository.findOneByOrFail({id});
+        const imgPath = this.composePath(imgData.fileName);
+        const imgReadStream = createReadStream(imgPath)
 
         const extName = path.extname(imgPath);
         const baseName = path.basename(imgPath)
-        const type = lookup(extName) || "application/octet-stream";
+        const type = lookup(extName) || BINARY_FILE;
         const disposition = `Content-Disposition: inline; filename="${baseName}"`;
 
-        return new StreamableFile(imageFile, {type, disposition});
+        return new StreamableFile(imgReadStream, {type, disposition});
     }
 
     async remove(id: number) {
