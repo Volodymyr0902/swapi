@@ -17,3 +17,5 @@ export const ENTITIES_PATH = './dist/**/*.entity{.ts,.js}'
 export const MIGRATIONS_TABLE_NAME = 'my_custom_migrations';
 
 export const MIGRATIONS_PATH = "./dist/migrations/*.js"
+
+export const RESOURCE_NAME_POSITION_FROM_END = 2

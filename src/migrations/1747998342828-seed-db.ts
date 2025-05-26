@@ -1,20 +1,22 @@
 import {
+    EntityManager,
     MigrationInterface,
     QueryRunner,
     Repository,
 } from "typeorm";
-import {SWAPI_API_URL} from "../common/constants";
-import {Person} from "../people/entities/person.entity";
-import {Specie} from "../species/entities/specie.entity";
-import {Planet} from "../planets/entities/planet.entity";
-import {Film} from "../films/entities/film.entity";
-import {Vehicle} from "../vehicles/entities/vehicle.entity";
-import {Starship} from "../starships/entities/starship.entity";
+import {RESOURCE_NAME_POSITION_FROM_END, SWAPI_API_URL} from "../common/constants";
+import {Person} from "../modules/people/entities/person.entity";
+import {Specie} from "../modules/species/entities/specie.entity";
+import {Planet} from "../modules/planets/entities/planet.entity";
+import {Film} from "../modules/films/entities/film.entity";
+import {Vehicle} from "../modules/vehicles/entities/vehicle.entity";
+import {Starship} from "../modules/starships/entities/starship.entity";
 import {ExistingEntity} from "../common/types/existing-entity.type";
 import * as process from "node:process";
 import {SwapiResourceItem} from "../common/interfaces/swapi-resource-item.interface";
 import {SwapiResource} from "../common/interfaces/swapi-resource.interface";
-
+import {STR_PROPS_TO_IGNORE} from "../common/enums/orig-api-str-props-to-ignore.enum";
+import {RESOURCES_NAMES} from "../common/enums/resources-names.enum";
 
 export class SeedDb1747998342828 implements MigrationInterface {
     private queryRunner: QueryRunner;
@@ -23,19 +25,19 @@ export class SeedDb1747998342828 implements MigrationInterface {
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
         this.queryRunner = queryRunner;
 
-        const swapiData = {}
+        const swapiData: Record<string, SwapiResourceItem[]> = {}
         const allResources: Record<string, string> = await this.getResources(SWAPI_API_URL)
 
         for (const resourceName of Object.keys(allResources)) {
             swapiData[resourceName] = await this.getAllItemsOfResource(allResources[resourceName]);
-            const repository = this.getRepository(resourceName)
+            const repository: Repository<ExistingEntity> = this.getRepository(resourceName)
             await this.insertItemsWithoutRelations(swapiData[resourceName], repository)
         }
 
         console.log(`[INFO] -- ${new Date()} -- Inserted all items to database. Proceeding to add relations.`)
 
         for (const resourceName of Object.keys(swapiData)) {
-            const repository = this.getRepository(resourceName)
+            const repository: Repository<ExistingEntity> = this.getRepository(resourceName)
             await this.addRelations(swapiData[resourceName], repository)
         }
 
@@ -43,9 +45,7 @@ export class SeedDb1747998342828 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        const tableNames = queryRunner.connection.entityMetadatas.map(meta => meta.tableName);
-
-        console.log(tableNames)
+        const tableNames: string[] = queryRunner.connection.entityMetadatas.map(meta => meta.tableName);
         await queryRunner.query('SET FOREIGN_KEY_CHECKS = 0');
 
         for (const table of tableNames) {
@@ -53,7 +53,6 @@ export class SeedDb1747998342828 implements MigrationInterface {
         }
 
         await queryRunner.query('SET FOREIGN_KEY_CHECKS = 1');
-
         console.log(`[INFO] -- ${new Date()} -- Seeded data has been cleared!`)
     }
 
@@ -64,90 +63,122 @@ export class SeedDb1747998342828 implements MigrationInterface {
     }
 
     private extractResourceNameFromUrl(url: string): string {
-        const filteredUrl = url.split('/').filter(Boolean)
-        return filteredUrl[filteredUrl.length - 2]
+        const filteredUrl: string[] = url.split('/').filter(Boolean)
+        return filteredUrl[filteredUrl.length - RESOURCE_NAME_POSITION_FROM_END]
     }
 
     private async insertItemsWithoutRelations(items: SwapiResourceItem[],
                                               repository: Repository<ExistingEntity>): Promise<void> {
         for (const item of items) {
-            const newItem = repository.create();
+            let newItem: ExistingEntity = repository.create();
             newItem.id = this.extractIdFromUrl(item.url)
-
-            for (const prop of Object.keys(item)) {
-                if (!Array.isArray(item[prop])
-                    && prop !== 'homeworld'
-                    && prop !== 'created'
-                    && prop !== 'edited'
-                    && prop !== 'url') {
-                    newItem[prop] = item[prop];
-                }
-            }
+            newItem = this.filterPrimitivePropsForItem(newItem, item);
 
             await repository.save(newItem);
         }
     }
 
+    private filterPrimitivePropsForItem(newItem: ExistingEntity, item: SwapiResourceItem): ExistingEntity {
+        for (const prop of Object.keys(item)) {
+            if (this.isPropertyPrimitive(item, prop)) {
+                newItem[prop] = item[prop];
+            }
+        }
+
+        return newItem
+    }
+
+    private isPropertyPrimitive(item: SwapiResourceItem, propertyName: string): boolean {
+        return !Array.isArray(item[propertyName]) && !Object.keys(STR_PROPS_TO_IGNORE).includes(propertyName)
+    }
+
     private async addRelations(items: SwapiResourceItem[],
                                repository: Repository<ExistingEntity>): Promise<void> {
         for (let item of items) {
-            const id = this.extractIdFromUrl(item.url)
-            let updateOnItem = await repository.findOneByOrFail({id})
-
-            for (let prop of Object.keys(item)) {
-                if (Array.isArray(item[prop]) && item[prop].length > 0) {
-                    const relationIds: number[] = item[prop].map(this.extractIdFromUrl)
-                    const relationProperty: string = this.extractResourceNameFromUrl(item[prop][0])
-                    const relationRepository = this.getRepository(relationProperty)
-
-                    updateOnItem[prop] = await Promise.all(relationIds.map(id =>
-                        relationRepository.findOneByOrFail({id})))
-                } else if (prop === 'homeworld' && item[prop] != null) {
-                    const homeworldId = this.extractIdFromUrl(item[prop])
-                    if (!repository.metadata.hasRelationWithPropertyPath('homeworld')) {
-                        updateOnItem[prop] = homeworldId
-                    } else {
-                        const planetRepository = this.getRepository('planets')
-                        updateOnItem[prop] = await planetRepository.findOneByOrFail({id: homeworldId})
-                    }
-                }
-            }
-
-            await repository.save(updateOnItem)
+            const itemWithRelations: ExistingEntity = await this.assignRelationsToUpdate(item, repository);
+            await repository.save(itemWithRelations)
         }
     }
 
+    private async assignRelationsToUpdate(origItem:SwapiResourceItem,
+                                          repository: Repository<ExistingEntity>): Promise<ExistingEntity> {
+        const id: number = this.extractIdFromUrl(origItem.url)
+        let itemWithoutRelations: ExistingEntity = await repository.findOneByOrFail({id})
+
+        for (let prop of Object.keys(origItem)) {
+            if (this.isNonEmptyRelationsArray(origItem[prop])) {
+                itemWithoutRelations[prop] = await this.assignArrayishRelations(origItem, prop)
+            } else if (this.isHomeworldRelation(origItem, prop)) {
+                itemWithoutRelations[prop] = await this.assignHomeworldRelation(origItem, prop, repository)
+            }
+        }
+
+        return itemWithoutRelations
+    }
+
+    private async assignArrayishRelations(origItem:SwapiResourceItem,
+                                          propertyName: string): Promise<ExistingEntity[]> {
+        const relationIds: number[] = origItem[propertyName].map(this.extractIdFromUrl)
+        const relationProperty: string = this.extractResourceNameFromUrl(origItem[propertyName][0])
+        const relationRepository: Repository<ExistingEntity> = this.getRepository(relationProperty)
+
+        return Promise.all(relationIds.map(id =>
+            relationRepository.findOneByOrFail({id})))
+    }
+
+    private async assignHomeworldRelation(origItem:SwapiResourceItem,
+                                          propertyName: string,
+                                          repository: Repository<ExistingEntity>): Promise<number | ExistingEntity> {
+        const homeworldId: number = this.extractIdFromUrl(origItem[propertyName])
+
+        if (!repository.metadata.hasRelationWithPropertyPath(STR_PROPS_TO_IGNORE.homeworld)) {
+            return homeworldId
+        } else {
+            const planetRepository: Repository<ExistingEntity> = this.getRepository(RESOURCES_NAMES.PLANETS)
+            return planetRepository.findOneByOrFail({id: homeworldId})
+        }
+    }
+
+    private isNonEmptyRelationsArray(value: unknown): boolean {
+        return Array.isArray(value) && value.length > 0
+    }
+
+    private isHomeworldRelation(item: SwapiResourceItem, propertyName: string): boolean {
+        return propertyName === STR_PROPS_TO_IGNORE.homeworld && item[propertyName] != null
+    }
+
     private getRepository<T extends ExistingEntity>(resourceName: string): Repository<T> {
-        const manager = this.queryRunner.manager
+        const manager: EntityManager = this.queryRunner.manager
+
         switch (resourceName) {
-            case 'people':
-                return manager.getRepository(Person) as Repository<T>
-            case 'films':
-                return manager.getRepository(Film) as Repository<T>
-            case 'species':
-                return manager.getRepository(Specie) as Repository<T>
-            case 'vehicles':
-                return manager.getRepository(Vehicle) as Repository<T>
-            case 'starships':
-                return manager.getRepository(Starship) as Repository<T>
-            case 'planets':
-                return manager.getRepository(Planet) as Repository<T>
+            case RESOURCES_NAMES.PEOPLE:
+                return manager.getRepository<T>(Person)
+            case RESOURCES_NAMES.FILMS:
+                return manager.getRepository<T>(Film)
+            case RESOURCES_NAMES.SPECIES:
+                return manager.getRepository<T>(Specie)
+            case RESOURCES_NAMES.VEHICLES:
+                return manager.getRepository<T>(Vehicle)
+            case RESOURCES_NAMES.STARSHIPS:
+                return manager.getRepository<T>(Starship)
+            case RESOURCES_NAMES.PLANETS:
+                return manager.getRepository<T>(Planet)
             default:
                 throw new Error('Failed to get repository!')
         }
     }
 
     private async getResources<T>(url: string): Promise<T> {
-        const resourcesRes = await fetch(url)
+        const resourcesRes: Response = await fetch(url)
         return resourcesRes.json()
     }
 
-    private async getAllItemsOfResource(url: string) {
+    private async getAllItemsOfResource(url: string): Promise<SwapiResourceItem[]> {
         const items: SwapiResourceItem[][] = []
         const initialPage: SwapiResource = await this.getResources(url)
         items.push(initialPage.results)
 
-        let nextPageURI = initialPage.next
+        let nextPageURI: string | null = initialPage.next
         while (nextPageURI != null) {
             const nextPage: SwapiResource = await this.getResources(nextPageURI)
             items.push(nextPage.results)

@@ -5,7 +5,7 @@ import * as process from "node:process";
 import {EnvVars} from "../common/types/env-vars.type";
 import {CONFIG_FILE_NAME} from "../common/constants";
 
-export default () => {
+export default (): EnvVars => {
     return yaml.load(
         readFileSync(join(process.cwd(), CONFIG_FILE_NAME), 'utf8')
     ) as EnvVars;

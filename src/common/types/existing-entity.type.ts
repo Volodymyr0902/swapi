@@ -1,8 +1,8 @@
-import {Person} from "../../people/entities/person.entity";
-import {Film} from "../../films/entities/film.entity";
-import {Starship} from "../../starships/entities/starship.entity";
-import {Specie} from "../../species/entities/specie.entity";
-import {Planet} from "../../planets/entities/planet.entity";
-import {Vehicle} from "../../vehicles/entities/vehicle.entity";
+import {Person} from "../../modules/people/entities/person.entity";
+import {Film} from "../../modules/films/entities/film.entity";
+import {Starship} from "../../modules/starships/entities/starship.entity";
+import {Specie} from "../../modules/species/entities/specie.entity";
+import {Planet} from "../../modules/planets/entities/planet.entity";
+import {Vehicle} from "../../modules/vehicles/entities/vehicle.entity";
 
 export type ExistingEntity = Person | Film | Specie | Starship | Vehicle | Planet;

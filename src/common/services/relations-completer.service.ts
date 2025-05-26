@@ -1,17 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {CreateDto} from "../types/create-dto.type";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Person} from "../../people/entities/person.entity";
-import {DataSource, DeepPartial, FindOptionsWhere, Repository} from "typeorm";
-import {Film} from "../../films/entities/film.entity";
-import {Specie} from "../../species/entities/specie.entity";
-import {Vehicle} from "../../vehicles/entities/vehicle.entity";
-import {Starship} from "../../starships/entities/starship.entity";
-import {Planet} from "../../planets/entities/planet.entity";
-import {UpdatePersonDto} from "../../people/dto/update-person.dto";
+import {Person} from "../../modules/people/entities/person.entity";
+import {DataSource, FindOptionsWhere, Repository} from "typeorm";
+import {Film} from "../../modules/films/entities/film.entity";
+import {Specie} from "../../modules/species/entities/specie.entity";
+import {Vehicle} from "../../modules/vehicles/entities/vehicle.entity";
+import {Starship} from "../../modules/starships/entities/starship.entity";
+import {Planet} from "../../modules/planets/entities/planet.entity";
 import {ExistingEntity} from "../types/existing-entity.type";
 import {UpdateDto} from "../types/update-dto.type";
-import {instanceToInstance, instanceToPlain} from "class-transformer";
 
 @Injectable()
 export class RelationsCompleterService<T extends ExistingEntity> {
@@ -23,18 +21,18 @@ export class RelationsCompleterService<T extends ExistingEntity> {
                 @InjectRepository(Starship) private readonly starshipRepository: Repository<Starship>,
                 @InjectRepository(Planet) private readonly planetRepository: Repository<Planet>) {}
 
-    async forCreate(createDto: CreateDto, entity: new () => T) {
-        const repository = this.dataSource.getRepository(entity)
-        let newEntity = repository.create();
+    async forCreate(createDto: CreateDto, entity: new () => T): Promise<T> {
+        const repository: Repository<T> = this.dataSource.getRepository(entity)
+        let newEntity: T = repository.create();
 
         Object.assign(newEntity, createDto);
         return this.completeRelations(createDto, newEntity)
     }
 
 
-    async forUpdate(id: number, updateDto: UpdateDto, entity: new () => T) {
-        const repository = this.dataSource.getRepository(entity)
-        let entityFromDB = await repository.findOneByOrFail({id} as FindOptionsWhere<T>);
+    async forUpdate(id: number, updateDto: UpdateDto, entity: new () => T): Promise<T> {
+        const repository: Repository<T> = this.dataSource.getRepository(entity)
+        let entityFromDB: T = await repository.findOneByOrFail({id} as FindOptionsWhere<T>);
 
         Object.assign(entityFromDB, updateDto);
         entityFromDB = await this.completeRelations(updateDto, entityFromDB)
@@ -42,7 +40,7 @@ export class RelationsCompleterService<T extends ExistingEntity> {
         return entityFromDB
     }
 
-    private async completeRelations(dto: CreateDto | UpdateDto, entity: T) {
+    private async completeRelations(dto: CreateDto | UpdateDto, entity: T): Promise<T> {
         if ("people" in entity && "people" in dto && dto.people != null) {
             entity.people = await Promise.all(dto.people.map(id => this.personRepository.findOneByOrFail({id})));
         }
