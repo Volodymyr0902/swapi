@@ -12,7 +12,17 @@ export type DbEnvVars = {
     database: string
 }
 
+export type AWSEnvVars = {
+    region: string,
+    credentials: {
+        accessKeyId: string,
+        secretAccessKey: string,
+    }
+    bucket: string,
+}
+
 export type EnvVars = {
     app: AppEnvVars,
-    db: DbEnvVars
+    db: DbEnvVars,
+    aws: AWSEnvVars,
 }

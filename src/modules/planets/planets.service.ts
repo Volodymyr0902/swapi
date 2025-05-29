@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreatePlanetDto} from './dto/create-planet.dto';
 import {UpdatePlanetDto} from './dto/update-planet.dto';
 import {Planet} from "./entities/planet.entity";
@@ -42,6 +42,10 @@ export class PlanetsService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.planetRepository.existsBy({id}))) {
+            throw new NotFoundException(`Planet with id ${id} not found`);
+        }
+
         const {affected} = await this.planetRepository.delete(id);
         return {success: !!affected};
     }

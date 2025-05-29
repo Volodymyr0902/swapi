@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreateSpecieDto} from './dto/create-specie.dto';
 import {UpdateSpecieDto} from './dto/update-specie.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -42,6 +42,10 @@ export class SpeciesService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.speciesRepository.existsBy({id}))) {
+            throw new NotFoundException(`Specie with id ${id} not found`);
+        }
+
         const {affected} = await this.speciesRepository.delete(id)
         return {success: !!affected};
     }

@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreateFilmDto} from './dto/create-film.dto';
 import {UpdateFilmDto} from './dto/update-film.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -42,6 +42,10 @@ export class FilmsService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.filmsRepository.existsBy({id}))) {
+            throw new NotFoundException(`Film with id ${id} not found`);
+        }
+
         const {affected} = await this.filmsRepository.delete(id);
         return {success: !!affected};
     }

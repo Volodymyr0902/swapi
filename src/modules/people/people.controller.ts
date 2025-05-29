@@ -8,7 +8,7 @@ import {
     Delete,
     Query,
     HttpStatus,
-    UseInterceptors
+    UseInterceptors,
 } from '@nestjs/common';
 import {PeopleService} from './people.service';
 import {CreatePersonDto} from './dto/create-person.dto';
@@ -23,11 +23,13 @@ import {GeneralResponseInterceptor} from "../../common/interceptors/general-resp
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Person} from "./entities/person.entity";
 import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 
 @Controller('people')
-@UseInterceptors(GeneralResponseInterceptor)
+@UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class PeopleController {
-    constructor(private readonly peopleService: PeopleService) {}
+    constructor(private readonly peopleService: PeopleService) {
+    }
 
     @ApiOperation({summary: 'Creates person'})
     @ApiCreatedResponse({description: HttpStatus["201"]})

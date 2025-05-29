@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreateStarshipDto} from './dto/create-starship.dto';
 import {UpdateStarshipDto} from './dto/update-starship.dto';
 import {Starship} from "./entities/starship.entity";
@@ -42,6 +42,10 @@ export class StarshipsService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.starshipRepository.existsBy({id}))) {
+            throw new NotFoundException(`Starship with id ${id} not found`);
+        }
+
         const {affected} = await this.starshipRepository.delete(id)
         return {success: !!affected};
     }

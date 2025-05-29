@@ -6,6 +6,7 @@ import {Repository} from "typeorm";
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
 import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {NotFoundException} from "@nestjs/common";
 
 export class PeopleService {
     constructor(@InjectRepository(Person) private readonly personRepository: Repository<Person>,
@@ -40,6 +41,10 @@ export class PeopleService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.personRepository.existsBy({id}))) {
+            throw new NotFoundException(`Person with id ${id} not found`);
+        }
+
         const {affected} = await this.personRepository.delete(id);
         return {success: !!affected};
     }

@@ -14,9 +14,10 @@ import {GeneralResponseInterceptor} from "../../common/interceptors/general-resp
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Film} from "./entities/film.entity";
 import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 
 @Controller('films')
-@UseInterceptors(GeneralResponseInterceptor)
+@UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class FilmsController {
     constructor(private readonly filmsService: FilmsService) {}
 

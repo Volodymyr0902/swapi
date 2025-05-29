@@ -14,9 +14,10 @@ import {GeneralResponseInterceptor} from "../../common/interceptors/general-resp
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Specie} from "./entities/specie.entity";
 import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 
 @Controller('species')
-@UseInterceptors(GeneralResponseInterceptor)
+@UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class SpeciesController {
     constructor(private readonly speciesService: SpeciesService) {
     }

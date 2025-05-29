@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreateVehicleDto} from './dto/create-vehicle.dto';
 import {UpdateVehicleDto} from './dto/update-vehicle.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -42,6 +42,10 @@ export class VehiclesService {
     }
 
     async remove(id: number): Promise<DeleteResponseDto> {
+        if (!(await this.vehicleRepository.existsBy({id}))) {
+            throw new NotFoundException(`Vehicle with id ${id} not found`);
+        }
+
         const {affected} = await this.vehicleRepository.delete(id);
         return {success: !!affected};
     }

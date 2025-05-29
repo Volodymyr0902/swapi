@@ -1,13 +1,17 @@
-import {NestApplication, NestFactory} from '@nestjs/core';
+import {HttpAdapterHost, NestApplication, NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {ValidationPipe} from "@nestjs/common";
 import {SwaggerModule} from "@nestjs/swagger";
 import {ConfigService} from "@nestjs/config";
 import swaggerConfig from "./config/swagger-config";
+import {AllExceptionsFilter} from "./common/filters/all-exceptions.filter";
 
 async function bootstrap() {
     const app = await NestFactory.create<NestApplication>(AppModule);
     const configService = app.get<ConfigService>(ConfigService);
+
+    const httpAdapterHost = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost))
 
     app.useGlobalPipes(new ValidationPipe({
         whitelist: true,

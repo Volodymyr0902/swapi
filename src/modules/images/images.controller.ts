@@ -25,9 +25,10 @@ import {
 import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
 import {Image} from "./entities/image.entity";
 import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 
 @Controller('images')
-@UseInterceptors(GeneralResponseInterceptor)
+@UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class ImagesController {
     constructor(private readonly imagesService: ImagesService) {}
 
