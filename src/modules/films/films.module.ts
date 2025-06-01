@@ -1,22 +1,27 @@
 import {forwardRef, Module} from '@nestjs/common';
 import {FilmsService} from './films.service';
 import {FilmsController} from './films.controller';
-import {Film} from "./entities/film.entity";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {SpeciesModule} from "../species/species.module";
-import {PeopleModule} from "../people/people.module";
-import {RelationsCompleterService} from "../../common/services/relations-completer.service";
-import {PlanetsModule} from "../planets/planets.module";
-import {StarshipsModule} from "../starships/starships.module";
+import {Film} from './entities/film.entity';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {SpeciesModule} from '../species/species.module';
+import {PeopleModule} from '../people/people.module';
+import {RelationsCompleterService} from '../../common/services/relations-completer.service';
+import {PlanetsModule} from '../planets/planets.module';
+import {StarshipsModule} from '../starships/starships.module';
+import {JwtModule} from "@nestjs/jwt";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Film]),
+    imports: [
+        TypeOrmModule.forFeature([Film]),
         StarshipsModule,
         PlanetsModule,
         forwardRef(() => SpeciesModule),
-        forwardRef(() => PeopleModule)],
+        forwardRef(() => PeopleModule),
+        JwtModule,
+    ],
     controllers: [FilmsController],
     providers: [FilmsService, RelationsCompleterService],
     exports: [TypeOrmModule],
 })
-export class FilmsModule {}
+export class FilmsModule {
+}

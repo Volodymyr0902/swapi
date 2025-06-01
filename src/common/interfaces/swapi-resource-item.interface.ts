@@ -1,3 +1,3 @@
 export interface SwapiResourceItem {
-    url: string;
+  url: string;
 }

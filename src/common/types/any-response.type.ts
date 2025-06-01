@@ -1,9 +1,5 @@
-import {ExistingEntity} from "./existing-entity.type";
-import {StreamableFile} from "@nestjs/common";
-import {DeleteResponseDto} from "../dto/deleteResponse.dto";
+import type { ExistingEntity } from './existing-entity.type';
+import type { StreamableFile } from '@nestjs/common';
+import type { GeneralResponseDto } from '../dto/general-response.dto';
 
-export type AnyResponse =
-    | ExistingEntity
-    | ExistingEntity[]
-    | DeleteResponseDto
-    | StreamableFile;
+export type AnyResponse = ExistingEntity | ExistingEntity[] | GeneralResponseDto | StreamableFile;
