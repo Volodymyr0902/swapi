@@ -7,7 +7,7 @@ import {PaginationDto} from "../../common/dto/pagination.dto";
 import {BINARY_FILE} from "../../common/constants";
 import {ConfigService} from "@nestjs/config";
 import {AppEnvVars} from "../../common/types/env-vars.type";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {StorageService} from "../../common/services/storage.service";
 import {Readable} from "stream";
 
@@ -50,7 +50,7 @@ export class ImagesService {
         });
     }
 
-    async remove(id: number): Promise<DeleteResponseDto> {
+    async remove(id: number): Promise<GeneralResponseDto> {
         await this.imagesRepository.findOneByOrFail({id});
 
         await this.storageService.drop(id.toString())

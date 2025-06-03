@@ -6,7 +6,7 @@ import {Film} from "./entities/film.entity";
 import {Repository} from "typeorm";
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 
 @Injectable()
 export class FilmsService {
@@ -41,7 +41,7 @@ export class FilmsService {
         return this.filmsRepository.save(completedFilm);
     }
 
-    async remove(id: number): Promise<DeleteResponseDto> {
+    async remove(id: number): Promise<GeneralResponseDto> {
         if (!(await this.filmsRepository.existsBy({id}))) {
             throw new NotFoundException(`Film with id ${id} not found`);
         }

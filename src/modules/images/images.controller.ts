@@ -6,7 +6,7 @@ import {
     Param,
     Delete,
     UseInterceptors,
-    UploadedFile, Query, ParseFilePipe, HttpStatus, StreamableFile,
+    UploadedFile, Query, ParseFilePipe, HttpStatus, StreamableFile, UseGuards,
 } from '@nestjs/common';
 import {ImagesService} from './images.service';
 import {CreateImageDto} from './dto/create-image.dto';
@@ -15,7 +15,7 @@ import {PaginationDto} from "../../common/dto/pagination.dto";
 import {ImageTypeValidator} from "./validators/image-type.validator";
 import {IMAGE_MIME_REGEX} from "../../common/constants";
 import {
-    ApiBadRequestResponse,
+    ApiBadRequestResponse, ApiBearerAuth,
     ApiConsumes,
     ApiCreatedResponse,
     ApiNoContentResponse, ApiNotFoundResponse,
@@ -24,8 +24,9 @@ import {
 } from "@nestjs/swagger";
 import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
 import {Image} from "./entities/image.entity";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 @Controller('images')
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -36,7 +37,9 @@ export class ImagesController {
     @ApiCreatedResponse({description: HttpStatus["201"]})
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth()
     @UseInterceptors(FileInterceptor('file'))
+    @UseGuards(JwtAuthGuard)
     @Post()
     create(@Body() createImageDto: CreateImageDto, @UploadedFile(new ParseFilePipe({
         validators: [new ImageTypeValidator({regex: IMAGE_MIME_REGEX})]
@@ -63,8 +66,10 @@ export class ImagesController {
     @ApiOperation({summary: 'Deletes image and its metadata'})
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Delete(':id')
-    remove(@Param('id') id: string): Promise<DeleteResponseDto> {
+    remove(@Param('id') id: string): Promise<GeneralResponseDto> {
         return this.imagesService.remove(+id);
     }
 }

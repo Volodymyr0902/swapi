@@ -6,7 +6,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 
 @Injectable()
 export class PlanetsService {
@@ -41,7 +41,7 @@ export class PlanetsService {
         return this.planetRepository.save(completedPlanet)
     }
 
-    async remove(id: number): Promise<DeleteResponseDto> {
+    async remove(id: number): Promise<GeneralResponseDto> {
         if (!(await this.planetRepository.existsBy({id}))) {
             throw new NotFoundException(`Planet with id ${id} not found`);
         }

@@ -6,7 +6,7 @@ import {Vehicle} from "./entities/vehicle.entity";
 import {Repository} from "typeorm";
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 
 @Injectable()
 export class VehiclesService {
@@ -41,7 +41,7 @@ export class VehiclesService {
         return this.vehicleRepository.save(completedVehicle)
     }
 
-    async remove(id: number): Promise<DeleteResponseDto> {
+    async remove(id: number): Promise<GeneralResponseDto> {
         if (!(await this.vehicleRepository.existsBy({id}))) {
             throw new NotFoundException(`Vehicle with id ${id} not found`);
         }

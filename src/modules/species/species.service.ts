@@ -6,7 +6,7 @@ import {Specie} from "./entities/specie.entity";
 import {Repository} from "typeorm";
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 
 @Injectable()
 export class SpeciesService {
@@ -41,7 +41,7 @@ export class SpeciesService {
         return this.speciesRepository.save(completedSpecie);
     }
 
-    async remove(id: number): Promise<DeleteResponseDto> {
+    async remove(id: number): Promise<GeneralResponseDto> {
         if (!(await this.speciesRepository.existsBy({id}))) {
             throw new NotFoundException(`Specie with id ${id} not found`);
         }

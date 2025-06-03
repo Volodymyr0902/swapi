@@ -8,22 +8,23 @@ import {
     Delete,
     Query,
     HttpStatus,
-    UseInterceptors,
+    UseInterceptors, UseGuards,
 } from '@nestjs/common';
 import {PeopleService} from './people.service';
 import {CreatePersonDto} from './dto/create-person.dto';
 import {UpdatePersonDto} from './dto/update-person.dto';
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {
-    ApiBadRequestResponse,
+    ApiBadRequestResponse, ApiBearerAuth,
     ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse,
     ApiOkResponse, ApiOperation,
 } from "@nestjs/swagger";
 import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Person} from "./entities/person.entity";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 @Controller('people')
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -34,6 +35,8 @@ export class PeopleController {
     @ApiOperation({summary: 'Creates person'})
     @ApiCreatedResponse({description: HttpStatus["201"]})
     @ApiBadRequestResponse({description: HttpStatus["400"]})
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Post()
     create(@Body() createPersonDto: CreatePersonDto): Promise<Person> {
         return this.peopleService.create(createPersonDto);
@@ -61,6 +64,8 @@ export class PeopleController {
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Patch(':id')
     update(@Param('id') id: string, @Body() updatePersonDto: UpdatePersonDto): Promise<Person> {
         return this.peopleService.update(+id, updatePersonDto);
@@ -69,8 +74,10 @@ export class PeopleController {
     @ApiOperation({summary: 'Deletes person'})
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @Delete(':id')
-    remove(@Param('id') id: string): Promise<DeleteResponseDto> {
+    remove(@Param('id') id: string): Promise<GeneralResponseDto> {
         return this.peopleService.remove(+id);
     }
 }

@@ -1,10 +1,22 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpStatus, UseInterceptors} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpStatus,
+  UseInterceptors,
+  UseGuards
+} from '@nestjs/common';
 import { PlanetsService } from './planets.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
 import { UpdatePlanetDto } from './dto/update-planet.dto';
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {
-  ApiBadRequestResponse,
+  ApiBadRequestResponse, ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse, ApiNotFoundResponse,
   ApiOkResponse,
@@ -13,8 +25,9 @@ import {
 import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Planet} from "./entities/planet.entity";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 @Controller('planets')
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -24,10 +37,13 @@ export class PlanetsController {
   @ApiOperation({summary: 'Creates planet'})
   @ApiCreatedResponse({description: HttpStatus["201"]})
   @ApiBadRequestResponse({description: HttpStatus["400"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createPlanetDto: CreatePlanetDto): Promise<Planet> {
     return this.planetsService.create(createPlanetDto);
   }
+
   @ApiOperation({summary: 'Retrieves queried page and number of planets'})
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiNoContentResponse({description: HttpStatus["204"]})
@@ -50,6 +66,8 @@ export class PlanetsController {
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiBadRequestResponse({description: HttpStatus["400"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePlanetDto: UpdatePlanetDto): Promise<Planet> {
     return this.planetsService.update(+id, updatePlanetDto);
@@ -58,8 +76,10 @@ export class PlanetsController {
   @ApiOperation({summary: 'Deletes planet'})
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<DeleteResponseDto> {
+  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
     return this.planetsService.remove(+id);
   }
 }

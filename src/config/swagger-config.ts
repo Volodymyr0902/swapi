@@ -5,5 +5,6 @@ export default new DocumentBuilder()
     .setDescription('Swapi REST API clone')
     .setVersion('1.0')
     .addTag('nest')
+    .addBearerAuth()
     .build();
 

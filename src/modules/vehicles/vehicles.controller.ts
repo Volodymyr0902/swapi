@@ -1,10 +1,22 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpStatus, UseInterceptors} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpStatus,
+  UseInterceptors,
+  UseGuards
+} from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {
-  ApiBadRequestResponse,
+  ApiBadRequestResponse, ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse, ApiNotFoundResponse,
   ApiOkResponse,
@@ -13,8 +25,9 @@ import {
 import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
 import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
 import {Vehicle} from "./entities/vehicle.entity";
-import {DeleteResponseDto} from "../../common/dto/deleteResponse.dto";
+import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 @Controller('vehicles')
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -24,6 +37,8 @@ export class VehiclesController {
   @ApiOperation({summary: 'Creates vehicle'})
   @ApiCreatedResponse({description: HttpStatus["201"]})
   @ApiBadRequestResponse({description: HttpStatus["400"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     return this.vehiclesService.create(createVehicleDto);
@@ -51,6 +66,8 @@ export class VehiclesController {
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiBadRequestResponse({description: HttpStatus["400"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto): Promise<Vehicle> {
     return this.vehiclesService.update(+id, updateVehicleDto);
@@ -59,8 +76,10 @@ export class VehiclesController {
   @ApiOperation({summary: 'Deletes vehicle'})
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<DeleteResponseDto> {
+  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
     return this.vehiclesService.remove(+id);
   }
 }
