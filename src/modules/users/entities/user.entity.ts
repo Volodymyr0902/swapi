@@ -16,4 +16,8 @@ export class User {
 
     @ManyToMany(() => Role, (role) => role.users, {onDelete: "CASCADE"})
     roles: Role[];
+
+    @Column({ nullable: true})
+    @Exclude()
+    refreshToken: string;
 }

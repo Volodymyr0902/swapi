@@ -13,13 +13,13 @@ import {
     ApiOkResponse,
     ApiOperation, ApiParam
 } from "@nestjs/swagger";
-import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {JwtAccessAuthGuard} from "../auth/guards/jwt-access-auth.guard";
 import {Roles} from "./decorators/roles.decorator";
 import {RolesGuard} from "./guards/roles.guard";
 
 @Controller('roles')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAccessAuthGuard, RolesGuard)
 @Roles(ExistingRoles.ADMIN)
 export class RolesController {
     constructor(private readonly rolesService: RolesService) {

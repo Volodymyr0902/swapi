@@ -10,6 +10,7 @@ import {Planet} from "../../modules/planets/entities/planet.entity";
 import {ExistingEntity} from "../types/existing-entity.type";
 import {UpdateDto} from "../types/update-dto.type";
 import {Role} from "../../modules/roles/entities/role.entity";
+import {ExistingRoles} from "../../modules/roles/enums/roles.enum";
 
 @Injectable()
 export class RelationsCompleterService<T extends ExistingEntity> {
@@ -75,9 +76,9 @@ export class RelationsCompleterService<T extends ExistingEntity> {
             entity.vehicles = await Promise.all(dto.vehicles.map(id => vehicleRepository.findOneByOrFail({id})));
         }
 
-        if ("roles" in entity && "roles" in dto && Array.isArray(dto.roles)) {
+        if ("roles" in entity) {
             const roleRepository: Repository<Role> = this.dataSource.getRepository<Role>(Role)
-            entity.roles = await Promise.all(dto.roles.map(name => roleRepository.findOneByOrFail({name})))
+            entity.roles = [await roleRepository.findOneByOrFail({name: ExistingRoles.USER})]
         }
 
         return entity

@@ -6,6 +6,7 @@ import {Repository} from "typeorm";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {SafeUser} from "./types/safe-user.type";
 import {RelationsCompleterService} from "../../common/services/relations-completer.service";
+import {UpdateTokenDto} from "./dto/update-token.dto";
 
 @Injectable()
 export class UsersService {
@@ -25,6 +26,12 @@ export class UsersService {
 
   findOne(username: string): Promise<User> {
     return this.userRepository.findOneOrFail({where: {username}, relations: ['roles']});
+  }
+
+  async updateToken(username: string, updateTokenDto: UpdateTokenDto): Promise<GeneralResponseDto> {
+    await this.userRepository.findOneByOrFail({username});
+    const {affected} = await this.userRepository.update({username}, updateTokenDto);
+    return {success: !!affected}
   }
 
   async remove(username: string): Promise<GeneralResponseDto> {

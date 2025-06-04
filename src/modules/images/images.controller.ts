@@ -26,7 +26,7 @@ import {GeneralResponseInterceptor} from "../../common/interceptors/general-resp
 import {Image} from "./entities/image.entity";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
-import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {JwtAccessAuthGuard} from "../auth/guards/jwt-access-auth.guard";
 import {ExistingRoles} from "../roles/enums/roles.enum";
 import {Roles} from "../roles/decorators/roles.decorator";
 import {RolesGuard} from "../roles/guards/roles.guard";
@@ -43,7 +43,7 @@ export class ImagesController {
     @ApiConsumes('multipart/form-data')
     @ApiBearerAuth()
     @UseInterceptors(FileInterceptor('file'))
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAccessAuthGuard, RolesGuard)
     @Roles(ExistingRoles.ADMIN)
     @Post()
     create(@Body() createImageDto: CreateImageDto, @UploadedFile(new ParseFilePipe({
@@ -72,7 +72,7 @@ export class ImagesController {
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAccessAuthGuard, RolesGuard)
     @Roles(ExistingRoles.ADMIN)
     @Delete(':id')
     remove(@Param('id') id: string): Promise<GeneralResponseDto> {

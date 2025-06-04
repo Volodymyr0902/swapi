@@ -6,12 +6,12 @@ import {JwtPayload} from "../interfaces/jwt-payload.interface";
 import {UserOnReq} from "../../users/types/user-on-req.type";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access') {
     constructor(private readonly configService: ConfigService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.getOrThrow<string>('auth.secret'),
+            secretOrKey: configService.getOrThrow<string>('auth.accessSecret'),
         });
     }
 

@@ -38,7 +38,7 @@ import {Role} from "./modules/roles/entities/role.entity";
         entities: [Image, Person, Specie, Film, Vehicle, Starship, Planet, User, Role],
         migrationsTableName: MIGRATIONS_TABLE_NAME,
         migrations: [MIGRATIONS_PATH],
-        migrationsRun: false,
+        migrationsRun: true,
         synchronize: false,
       }),
       inject: [ConfigService],

@@ -24,7 +24,7 @@ import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to
 import {Person} from "./entities/person.entity";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
-import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {JwtAccessAuthGuard} from "../auth/guards/jwt-access-auth.guard";
 import {ExistingRoles} from "../roles/enums/roles.enum";
 import {Roles} from "../roles/decorators/roles.decorator";
 import {RolesGuard} from "../roles/guards/roles.guard";
@@ -40,7 +40,7 @@ export class PeopleController {
     @ApiCreatedResponse({description: HttpStatus["201"]})
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAccessAuthGuard, RolesGuard)
     @Roles(ExistingRoles.ADMIN)
     @Post()
     create(@Body() createPersonDto: CreatePersonDto): Promise<Person> {
@@ -70,7 +70,7 @@ export class PeopleController {
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAccessAuthGuard, RolesGuard)
     @Roles(ExistingRoles.ADMIN)
     @Patch(':id')
     update(@Param('id') id: string, @Body() updatePersonDto: UpdatePersonDto): Promise<Person> {
@@ -81,7 +81,7 @@ export class PeopleController {
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAccessAuthGuard, RolesGuard)
     @Roles(ExistingRoles.ADMIN)
     @Delete(':id')
     remove(@Param('id') id: string): Promise<GeneralResponseDto> {

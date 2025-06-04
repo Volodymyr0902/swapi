@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {UsersService} from "../users/users.service";
 import * as bcrypt from 'bcrypt';
 import {User} from "../users/entities/user.entity";
@@ -6,15 +6,19 @@ import {RegisterReqDto} from "./dto/register-req.dto";
 import {ConfigService} from "@nestjs/config";
 import {JwtService} from "@nestjs/jwt";
 import {SafeUser} from "../users/types/safe-user.type";
-import {LoginResDto} from "./dto/login-res.dto";
+import {ResWithTokensDto} from "./dto/res-with-tokens.dto";
 import {JwtPayload} from "./interfaces/jwt-payload.interface";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
+import {ACCESS_TOKEN_JWT, REFRESH_TOKEN_JWT} from "./constants";
+import {Role} from "../roles/entities/role.entity";
+import {UserOnReq} from "../users/types/user-on-req.type";
 
 @Injectable()
 export class AuthService {
     constructor(private readonly usersService: UsersService,
                 private readonly configService: ConfigService,
-                private readonly jwtService: JwtService,) {
+                @Inject(ACCESS_TOKEN_JWT) private readonly accessJwtService: JwtService,
+                @Inject(REFRESH_TOKEN_JWT) private readonly refreshJwtService: JwtService,) {
     }
 
     async validateUser(username: string, password: string): Promise<SafeUser | null> {
@@ -28,17 +32,15 @@ export class AuthService {
         return null;
     }
 
-    async login(user: SafeUser): Promise<LoginResDto> {
+    async login(user: SafeUser): Promise<ResWithTokensDto> {
         const {username, id, roles} = user;
         const payload: JwtPayload = {
             username,
             sub: id,
-            roles: roles.map(role => role.name)
+            roles: roles.map((role: Role): string => role.name)
         };
 
-        return {
-            accessToken: this.jwtService.sign(payload)
-        };
+        return this.getTokens(payload, username);
     }
 
     async register(registerDto: RegisterReqDto): Promise<SafeUser> {
@@ -51,5 +53,30 @@ export class AuthService {
 
     async deleteAccount(user: SafeUser): Promise<GeneralResponseDto> {
         return this.usersService.remove(user.username)
+    }
+
+    async refresh(user: UserOnReq): Promise<ResWithTokensDto> {
+        const {username, id, roles} = user;
+        const payload: JwtPayload = {
+            username,
+            sub: id,
+            roles,
+        };
+
+        return this.getTokens(payload, username);
+    }
+
+    private async getTokens(payload: JwtPayload, username: string): Promise<ResWithTokensDto> {
+        const accessToken: string = this.accessJwtService.sign(payload);
+        const refreshToken: string = this.refreshJwtService.sign(payload);
+
+        const salt: string = this.configService.getOrThrow<string>('auth.salt');
+        const hashedRefreshToken: string = await bcrypt.hash(refreshToken, salt);
+        await this.usersService.updateToken(username, {refreshToken: hashedRefreshToken})
+
+        return {
+            accessToken,
+            refreshToken
+        }
     }
 }

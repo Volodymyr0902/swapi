@@ -11,7 +11,7 @@ export class Role {
 
     @ManyToMany(() => User, (user) => user.roles, {onDelete: "CASCADE", eager: true})
     @JoinTable({
-        name: 'user_roles',
+        name: 'users_roles',
         joinColumn: {name: "role_id", referencedColumnName: "id"},
         inverseJoinColumn: {name: "user_id", referencedColumnName: "id"}
     })

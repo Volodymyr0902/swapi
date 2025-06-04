@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, HttpCode, HttpStatus, Post, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Req, UseGuards} from '@nestjs/common';
 import {AuthService} from "./auth.service";
 import {LocalAuthGuard} from "./guards/local-auth.guard";
 import {RegisterReqDto} from "./dto/register-req.dto";
@@ -11,11 +11,13 @@ import {
 } from "@nestjs/swagger";
 import {LoginReqDto} from "./dto/login-req.dto";
 import {ReqWithUserObjRoles} from "./interfaces/req-with-user-obj-roles.interface";
-import {LoginResDto} from "./dto/login-res.dto";
+import {ResWithTokensDto} from "./dto/res-with-tokens.dto";
 import {DeleteAccountDto} from "./dto/delete-account.dto";
-import {JwtAuthGuard} from "./guards/jwt-auth.guard";
+import {JwtAccessAuthGuard} from "./guards/jwt-access-auth.guard";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {SafeUser} from "../users/types/safe-user.type";
+import {ReqWithUserStrRoles} from "./interfaces/req-with-user-str-roles";
+import {JwtRefreshAuthGuard} from "./guards/jwt-refresh-auth.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +32,7 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     @Post('login')
     @HttpCode(HttpStatus.OK)
-    login(@Req() request: ReqWithUserObjRoles): Promise<LoginResDto> {
+    login(@Req() request: ReqWithUserObjRoles): Promise<ResWithTokensDto> {
         return this.authService.login(request.user);
     }
 
@@ -49,10 +51,21 @@ export class AuthController {
     @ApiNotFoundResponse({description: HttpStatus['404']})
     @ApiUnauthorizedResponse({description: HttpStatus['401']})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAccessAuthGuard)
     @UseGuards(LocalAuthGuard)
     @Delete('deleteAccount')
     deleteAccount(@Req() request: ReqWithUserObjRoles): Promise<GeneralResponseDto> {
         return this.authService.deleteAccount(request.user);
+    }
+
+    @ApiOperation({summary: 'Returns new pair of tokens'})
+    @ApiOkResponse({description: HttpStatus['200']})
+    @ApiNotFoundResponse({description: HttpStatus['404']})
+    @ApiUnauthorizedResponse({description: HttpStatus['401']})
+    @ApiBearerAuth()
+    @UseGuards(JwtRefreshAuthGuard)
+    @Get('refresh')
+    refresh(@Req() request: ReqWithUserStrRoles): Promise<ResWithTokensDto> {
+        return this.authService.refresh(request.user);
     }
 }
