@@ -1,10 +1,11 @@
-import {HttpAdapterHost, NestApplication, NestFactory} from '@nestjs/core';
+import {HttpAdapterHost, NestApplication, NestFactory, Reflector} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {ValidationPipe} from "@nestjs/common";
 import {SwaggerModule} from "@nestjs/swagger";
 import {ConfigService} from "@nestjs/config";
 import swaggerConfig from "./config/swagger-config";
 import {AllExceptionsFilter} from "./common/filters/all-exceptions.filter";
+import {RolesGuard} from "./modules/roles/guards/roles.guard";
 
 async function bootstrap() {
     const app = await NestFactory.create<NestApplication>(AppModule);

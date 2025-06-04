@@ -1,24 +1,26 @@
 import {
-    Controller,
-    Get,
-    Post,
     Body,
-    Patch,
-    Param,
+    Controller,
     Delete,
-    Query,
+    Get,
     HttpStatus,
-    UseInterceptors,
-    UseGuards
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common';
 import {FilmsService} from './films.service';
 import {CreateFilmDto} from './dto/create-film.dto';
 import {UpdateFilmDto} from './dto/update-film.dto';
 import {PaginationDto} from "../../common/dto/pagination.dto";
 import {
-    ApiBadRequestResponse, ApiBearerAuth,
+    ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiCreatedResponse,
-    ApiNoContentResponse, ApiNotFoundResponse,
+    ApiNoContentResponse,
+    ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation
 } from "@nestjs/swagger";
@@ -28,8 +30,12 @@ import {Film} from "./entities/film.entity";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {RolesGuard} from "../roles/guards/roles.guard";
+import {Roles} from "../roles/decorators/roles.decorator";
+import {ExistingRoles} from "../roles/enums/roles.enum";
 
 @Controller('films')
+@Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class FilmsController {
     constructor(private readonly filmsService: FilmsService) {}
@@ -39,7 +45,8 @@ export class FilmsController {
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiBearerAuth()
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     create(@Body() createFilmDto: CreateFilmDto): Promise<Film> {
         return this.filmsService.create(createFilmDto);
     }
@@ -68,7 +75,8 @@ export class FilmsController {
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
     @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     update(@Param('id') id: string, @Body() updateFilmDto: UpdateFilmDto): Promise<Film> {
         return this.filmsService.update(+id, updateFilmDto);
     }
@@ -78,7 +86,8 @@ export class FilmsController {
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     remove(@Param('id') id: string): Promise<GeneralResponseDto> {
         return this.filmsService.remove(+id);
     }

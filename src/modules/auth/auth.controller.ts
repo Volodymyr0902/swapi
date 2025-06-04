@@ -2,7 +2,6 @@ import {Body, Controller, Delete, HttpCode, HttpStatus, Post, Req, UseGuards} fr
 import {AuthService} from "./auth.service";
 import {LocalAuthGuard} from "./guards/local-auth.guard";
 import {RegisterReqDto} from "./dto/register-req.dto";
-import {RegisterResDto} from "./dto/register-res.dto";
 import {
     ApiBadRequestResponse, ApiBearerAuth,
     ApiBody, ApiConflictResponse,
@@ -11,11 +10,12 @@ import {
     ApiUnauthorizedResponse
 } from "@nestjs/swagger";
 import {LoginReqDto} from "./dto/login-req.dto";
-import {RequestWithUser} from "./interfaces/request-with-user.interface";
+import {ReqWithUserObjRoles} from "./interfaces/req-with-user-obj-roles.interface";
 import {LoginResDto} from "./dto/login-res.dto";
 import {DeleteAccountDto} from "./dto/delete-account.dto";
 import {JwtAuthGuard} from "./guards/jwt-auth.guard";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
+import {SafeUser} from "../users/types/safe-user.type";
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +30,7 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     @Post('login')
     @HttpCode(HttpStatus.OK)
-    login(@Req() request: RequestWithUser): Promise<LoginResDto> {
+    login(@Req() request: ReqWithUserObjRoles): Promise<LoginResDto> {
         return this.authService.login(request.user);
     }
 
@@ -39,7 +39,7 @@ export class AuthController {
     @ApiBadRequestResponse({description: HttpStatus['400']})
     @ApiConflictResponse({description: HttpStatus['409']})
     @Post('register')
-    register(@Body() registerDto: RegisterReqDto): Promise<RegisterResDto> {
+    register(@Body() registerDto: RegisterReqDto): Promise<SafeUser> {
         return this.authService.register(registerDto);
     }
 
@@ -52,7 +52,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @UseGuards(LocalAuthGuard)
     @Delete('deleteAccount')
-    deleteAccount(@Req() request: RequestWithUser): Promise<GeneralResponseDto> {
+    deleteAccount(@Req() request: ReqWithUserObjRoles): Promise<GeneralResponseDto> {
         return this.authService.deleteAccount(request.user);
     }
 }

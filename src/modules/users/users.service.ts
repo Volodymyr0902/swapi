@@ -5,10 +5,12 @@ import {User} from "./entities/user.entity";
 import {Repository} from "typeorm";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {SafeUser} from "./types/safe-user.type";
+import {RelationsCompleterService} from "../../common/services/relations-completer.service";
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
+  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
+              private readonly relationsCompleter: RelationsCompleterService<User>,) {}
 
   async create(createUserDto: CreateUserReqDto): Promise<SafeUser> {
     const {username} = createUserDto
@@ -16,13 +18,13 @@ export class UsersService {
       throw new ConflictException('', 'User with this username already exists')
     }
 
-    const newUser: User = this.userRepository.create(createUserDto);
+    const newUser: User = await this.relationsCompleter.forCreate(createUserDto, User);
     const {password, ...user} = await this.userRepository.save(newUser);
     return user
   }
 
   findOne(username: string): Promise<User> {
-    return this.userRepository.findOneByOrFail({username});
+    return this.userRepository.findOneOrFail({where: {username}, relations: ['roles']});
   }
 
   async remove(username: string): Promise<GeneralResponseDto> {

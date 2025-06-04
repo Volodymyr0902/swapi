@@ -28,8 +28,12 @@ import {Specie} from "./entities/specie.entity";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {ExistingRoles} from "../roles/enums/roles.enum";
+import {Roles} from "../roles/decorators/roles.decorator";
+import {RolesGuard} from "../roles/guards/roles.guard";
 
 @Controller('species')
+@Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class SpeciesController {
     constructor(private readonly speciesService: SpeciesService) {
@@ -39,7 +43,8 @@ export class SpeciesController {
     @ApiCreatedResponse({description: HttpStatus["201"]})
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     @Post()
     create(@Body() createSpeciesDto: CreateSpecieDto): Promise<Specie> {
         return this.speciesService.create(createSpeciesDto);
@@ -68,7 +73,8 @@ export class SpeciesController {
     @ApiBadRequestResponse({description: HttpStatus["400"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateSpeciesDto: UpdateSpecieDto): Promise<Specie> {
         return this.speciesService.update(+id, updateSpeciesDto);
@@ -78,7 +84,8 @@ export class SpeciesController {
     @ApiOkResponse({description: HttpStatus["200"]})
     @ApiNotFoundResponse({description: HttpStatus["404"]})
     @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(ExistingRoles.ADMIN)
     @Delete(':id')
     remove(@Param('id') id: string): Promise<GeneralResponseDto> {
         return this.speciesService.remove(+id);

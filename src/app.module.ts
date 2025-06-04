@@ -22,6 +22,8 @@ import {DataSourceOptions} from "typeorm";
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import {User} from "./modules/users/entities/user.entity";
+import { RolesModule } from './modules/roles/roles.module';
+import {Role} from "./modules/roles/entities/role.entity";
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -33,7 +35,7 @@ import {User} from "./modules/users/entities/user.entity";
       useFactory: (configService: ConfigService): DataSourceOptions => ({
         type: DB_DRIVER,
         ...configService.get<DbEnvVars>("db"),
-        entities: [Image, Person, Specie, Film, Vehicle, Starship, Planet, User],
+        entities: [Image, Person, Specie, Film, Vehicle, Starship, Planet, User, Role],
         migrationsTableName: MIGRATIONS_TABLE_NAME,
         migrations: [MIGRATIONS_PATH],
         migrationsRun: false,
@@ -49,7 +51,8 @@ import {User} from "./modules/users/entities/user.entity";
     SpeciesModule,
     PlanetsModule,
     AuthModule,
-    UsersModule],
+    UsersModule,
+    RolesModule],
   controllers: [],
   providers: [],
 })

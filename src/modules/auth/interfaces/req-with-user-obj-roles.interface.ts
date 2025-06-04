@@ -1,5 +1,5 @@
 import {SafeUser} from "../../users/types/safe-user.type";
 
-export interface RequestWithUser extends Request {
+export interface ReqWithUserObjRoles extends Request {
     user: SafeUser
 }

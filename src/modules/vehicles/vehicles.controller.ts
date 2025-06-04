@@ -28,8 +28,12 @@ import {Vehicle} from "./entities/vehicle.entity";
 import {GeneralResponseDto} from "../../common/dto/general-response.dto";
 import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {ExistingRoles} from "../roles/enums/roles.enum";
+import {Roles} from "../roles/decorators/roles.decorator";
+import {RolesGuard} from "../roles/guards/roles.guard";
 
 @Controller('vehicles')
+@Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
@@ -38,7 +42,8 @@ export class VehiclesController {
   @ApiCreatedResponse({description: HttpStatus["201"]})
   @ApiBadRequestResponse({description: HttpStatus["400"]})
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
   @Post()
   create(@Body() createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     return this.vehiclesService.create(createVehicleDto);
@@ -67,7 +72,8 @@ export class VehiclesController {
   @ApiBadRequestResponse({description: HttpStatus["400"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto): Promise<Vehicle> {
     return this.vehiclesService.update(+id, updateVehicleDto);
@@ -77,7 +83,8 @@ export class VehiclesController {
   @ApiOkResponse({description: HttpStatus["200"]})
   @ApiNotFoundResponse({description: HttpStatus["404"]})
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {
     return this.vehiclesService.remove(+id);

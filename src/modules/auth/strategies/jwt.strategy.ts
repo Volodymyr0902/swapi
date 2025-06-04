@@ -3,7 +3,7 @@ import {Injectable} from "@nestjs/common";
 import {ExtractJwt, Strategy} from "passport-jwt";
 import {ConfigService} from "@nestjs/config";
 import {JwtPayload} from "../interfaces/jwt-payload.interface";
-import {SafeUser} from "../../users/types/safe-user.type";
+import {UserOnReq} from "../../users/types/user-on-req.type";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    validate(payload: JwtPayload): SafeUser {
-        return {id: payload.sub, username: payload.username};
+    validate(payload: JwtPayload): UserOnReq {
+        return {id: payload.sub, username: payload.username, roles: payload.roles};
     }
 }

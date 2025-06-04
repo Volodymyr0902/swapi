@@ -1,6 +1,5 @@
 import {
     ArgumentsHost,
-    BadRequestException,
     Catch,
     ExceptionFilter,
     HttpException,
@@ -27,9 +26,7 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
                 ? HttpStatus.NOT_FOUND
                 : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        const message: string = exception instanceof BadRequestException
-            ? exception["response"]['message'].join(', ')
-            : exception instanceof HttpException
+        const message: string = exception instanceof HttpException
             || exception instanceof TypeORMError
             || exception instanceof NoSuchKey
                 ? exception.message
