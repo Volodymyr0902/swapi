@@ -1,15 +1,20 @@
-import {DataSource} from 'typeorm';
-import config from "./config/config-reader"
-import {DB_DRIVER, ENTITIES_PATH, MIGRATIONS_PATH, MIGRATIONS_TABLE_NAME} from "./common/constants";
-import {EnvVars} from "./common/types/env-vars.type";
+import { DataSource } from 'typeorm';
+import config from './config/config-reader';
+import {
+  DB_DRIVER,
+  ENTITIES_PATH,
+  MIGRATIONS_PATH,
+  MIGRATIONS_TABLE_NAME,
+} from './common/constants';
+import { EnvVars } from './common/types/env-vars.type';
 
-const dbConfig: EnvVars = config()
+const dbConfig: EnvVars = config();
 
 export const AppDataSource = new DataSource({
-    type: DB_DRIVER,
-    ...dbConfig.db,
-    entities: [ENTITIES_PATH],
-    migrationsTableName: MIGRATIONS_TABLE_NAME,
-    migrations: [MIGRATIONS_PATH],
-    synchronize: false,
-})
+  type: DB_DRIVER,
+  ...dbConfig.db,
+  entities: [ENTITIES_PATH],
+  migrationsTableName: MIGRATIONS_TABLE_NAME,
+  migrations: [MIGRATIONS_PATH],
+  synchronize: false,
+});

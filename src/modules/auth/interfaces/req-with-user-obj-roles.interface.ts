@@ -1,5 +1,5 @@
-import {SafeUser} from "../../users/types/safe-user.type";
+import { SafeUser } from '../../users/types/safe-user.type';
 
 export interface ReqWithUserObjRoles extends Request {
-    user: SafeUser
+  user: SafeUser;
 }

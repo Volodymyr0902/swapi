@@ -1,3 +1,3 @@
 export class GeneralResponseDto {
-    success: boolean;
+  success: boolean;
 }

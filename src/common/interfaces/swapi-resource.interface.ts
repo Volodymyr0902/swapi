@@ -1,7 +1,7 @@
-import {SwapiResourceItem} from "./swapi-resource-item.interface";
+import { SwapiResourceItem } from './swapi-resource-item.interface';
 
 export interface SwapiResource {
-    count: number;
-    next: string | null;
-    results: SwapiResourceItem[]
+  count: number;
+  next: string | null;
+  results: SwapiResourceItem[];
 }

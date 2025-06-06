@@ -1,23 +1,23 @@
-import {Column, Entity, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Role} from "../../roles/entities/role.entity";
-import {Exclude} from "class-transformer";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    username: string;
+  @Column()
+  username: string;
 
-    @Column()
-    @Exclude()
-    password: string;
+  @Column()
+  @Exclude()
+  password: string;
 
-    @ManyToMany(() => Role, (role) => role.users, {onDelete: "CASCADE"})
-    roles: Role[];
+  @ManyToMany(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
+  roles: Role[];
 
-    @Column({ nullable: true})
-    @Exclude()
-    refreshToken: string;
+  @Column({ nullable: true })
+  @Exclude()
+  refreshToken: string;
 }

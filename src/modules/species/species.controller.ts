@@ -1,93 +1,97 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    Query,
-    HttpStatus,
-    UseInterceptors,
-    UseGuards
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpStatus,
+  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
-import {SpeciesService} from './species.service';
-import {CreateSpecieDto} from './dto/create-specie.dto';
-import {UpdateSpecieDto} from './dto/update-specie.dto';
-import {PaginationDto} from "../../common/dto/pagination.dto";
+import { SpeciesService } from './species.service';
+import { CreateSpecieDto } from './dto/create-specie.dto';
+import { UpdateSpecieDto } from './dto/update-specie.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import {
-    ApiBadRequestResponse, ApiBearerAuth,
-    ApiCreatedResponse,
-    ApiNoContentResponse, ApiNotFoundResponse,
-    ApiOkResponse,
-    ApiOperation
-} from "@nestjs/swagger";
-import {GeneralResponseInterceptor} from "../../common/interceptors/general-response.interceptor";
-import {RelationsToUrisInterceptor} from "../../common/interceptors/relations-to-uris.interceptor";
-import {Specie} from "./entities/specie.entity";
-import {GeneralResponseDto} from "../../common/dto/general-response.dto";
-import {NoContentInterceptor} from "../../common/interceptors/no-content.interceptor";
-import {JwtAccessAuthGuard} from "../auth/guards/jwt-access-auth.guard";
-import {ExistingRoles} from "../roles/enums/roles.enum";
-import {Roles} from "../roles/decorators/roles.decorator";
-import {RolesGuard} from "../roles/guards/roles.guard";
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { GeneralResponseInterceptor } from '../../common/interceptors/general-response.interceptor';
+import { RelationsToUrisInterceptor } from '../../common/interceptors/relations-to-uris.interceptor';
+import { Specie } from './entities/specie.entity';
+import { GeneralResponseDto } from '../../common/dto/general-response.dto';
+import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
+import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
+import { ExistingRoles } from '../roles/enums/roles.enum';
+import { Roles } from '../roles/decorators/roles.decorator';
+import { RolesGuard } from '../roles/guards/roles.guard';
 
 @Controller('species')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
 export class SpeciesController {
-    constructor(private readonly speciesService: SpeciesService) {
-    }
+  constructor(private readonly speciesService: SpeciesService) {}
 
-    @ApiOperation({summary: 'Creates species'})
-    @ApiCreatedResponse({description: HttpStatus["201"]})
-    @ApiBadRequestResponse({description: HttpStatus["400"]})
-    @ApiBearerAuth()
-    @UseGuards(JwtAccessAuthGuard, RolesGuard)
-    @Roles(ExistingRoles.ADMIN)
-    @Post()
-    create(@Body() createSpeciesDto: CreateSpecieDto): Promise<Specie> {
-        return this.speciesService.create(createSpeciesDto);
-    }
+  @ApiOperation({ summary: 'Creates species' })
+  @ApiCreatedResponse({ description: HttpStatus['201'] })
+  @ApiBadRequestResponse({ description: HttpStatus['400'] })
+  @ApiBearerAuth()
+  @UseGuards(JwtAccessAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
+  @Post()
+  create(@Body() createSpeciesDto: CreateSpecieDto): Promise<Specie> {
+    return this.speciesService.create(createSpeciesDto);
+  }
 
-    @ApiOperation({summary: 'Retrieves queried page and number of species'})
-    @ApiOkResponse({description: HttpStatus["200"]})
-    @ApiNoContentResponse({description: HttpStatus["204"]})
-    @Get()
-    @UseInterceptors(RelationsToUrisInterceptor)
-    findAll(@Query() paginationDto: PaginationDto): Promise<Specie[]> {
-        return this.speciesService.findAll(paginationDto);
-    }
+  @ApiOperation({ summary: 'Retrieves queried page and number of species' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNoContentResponse({ description: HttpStatus['204'] })
+  @Get()
+  @UseInterceptors(RelationsToUrisInterceptor)
+  findAll(@Query() paginationDto: PaginationDto): Promise<Specie[]> {
+    return this.speciesService.findAll(paginationDto);
+  }
 
-    @ApiOperation({summary: 'Retrieves unique species'})
-    @ApiOkResponse({description: HttpStatus["200"]})
-    @ApiNotFoundResponse({description: HttpStatus["404"]})
-    @Get(':id')
-    @UseInterceptors(RelationsToUrisInterceptor)
-    findOne(@Param('id') id: string): Promise<Specie> {
-        return this.speciesService.findOne(+id);
-    }
+  @ApiOperation({ summary: 'Retrieves unique species' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @Get(':id')
+  @UseInterceptors(RelationsToUrisInterceptor)
+  findOne(@Param('id') id: string): Promise<Specie> {
+    return this.speciesService.findOne(+id);
+  }
 
-    @ApiOperation({summary: 'Updates species'})
-    @ApiOkResponse({description: HttpStatus["200"]})
-    @ApiBadRequestResponse({description: HttpStatus["400"]})
-    @ApiNotFoundResponse({description: HttpStatus["404"]})
-    @ApiBearerAuth()
-    @UseGuards(JwtAccessAuthGuard, RolesGuard)
-    @Roles(ExistingRoles.ADMIN)
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateSpeciesDto: UpdateSpecieDto): Promise<Specie> {
-        return this.speciesService.update(+id, updateSpeciesDto);
-    }
+  @ApiOperation({ summary: 'Updates species' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiBadRequestResponse({ description: HttpStatus['400'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @ApiBearerAuth()
+  @UseGuards(JwtAccessAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateSpeciesDto: UpdateSpecieDto,
+  ): Promise<Specie> {
+    return this.speciesService.update(+id, updateSpeciesDto);
+  }
 
-    @ApiOperation({summary: 'Deletes species'})
-    @ApiOkResponse({description: HttpStatus["200"]})
-    @ApiNotFoundResponse({description: HttpStatus["404"]})
-    @ApiBearerAuth()
-    @UseGuards(JwtAccessAuthGuard, RolesGuard)
-    @Roles(ExistingRoles.ADMIN)
-    @Delete(':id')
-    remove(@Param('id') id: string): Promise<GeneralResponseDto> {
-        return this.speciesService.remove(+id);
-    }
+  @ApiOperation({ summary: 'Deletes species' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @ApiBearerAuth()
+  @UseGuards(JwtAccessAuthGuard, RolesGuard)
+  @Roles(ExistingRoles.ADMIN)
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+    return this.speciesService.remove(+id);
+  }
 }
