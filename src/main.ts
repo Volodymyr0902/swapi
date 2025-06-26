@@ -6,8 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import swaggerConfig from './config/swagger-config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestApplication>(AppModule);
+async function bootstrap(): Promise<void> {
+  const app: NestApplication = await NestFactory.create<NestApplication>(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
 
   const httpAdapterHost = app.get(HttpAdapterHost);
@@ -24,7 +24,7 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, documentFactory);
 
-  const port = configService.get<number>('app.port') ?? 3000;
+  const port: number = configService.get<number>('APP_PORT') ?? 3000;
   await app.listen(port);
 }
 

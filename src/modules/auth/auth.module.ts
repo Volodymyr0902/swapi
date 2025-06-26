@@ -20,9 +20,9 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
       provide: ACCESS_TOKEN_JWT,
       useFactory: (configService: ConfigService): JwtService => {
         return new JwtService({
-          secret: configService.get<string>('auth.accessSecret'),
+          secret: configService.get<string>('AUTH_ACCESS_SECRET'),
           signOptions: {
-            expiresIn: configService.get<string>('auth.accessExp'),
+            expiresIn: configService.get<string>('AUTH_ACCESS_EXP'),
           },
         });
       },
@@ -32,9 +32,9 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
       provide: REFRESH_TOKEN_JWT,
       useFactory: (configService: ConfigService): JwtService => {
         return new JwtService({
-          secret: configService.get<string>('auth.refreshSecret'),
+          secret: configService.get<string>('AUTH_REFRESH_SECRET'),
           signOptions: {
-            expiresIn: configService.get<string>('auth.refreshExp'),
+            expiresIn: configService.get<string>('AUTH_REFRESH_EXP'),
           },
         });
       },

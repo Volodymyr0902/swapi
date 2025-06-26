@@ -34,7 +34,10 @@ export class ImagesService {
     const savedImage: Image = await this.imagesRepository.save(newImage);
 
     const { id } = savedImage;
-    const { protocol, host, port } = this.configService.get<AppEnvVars>('app')!;
+    const protocol: string = this.configService.getOrThrow<string>('APP_PROTOCOL');
+    const host: string = this.configService.getOrThrow<string>('APP_HOST');
+    const port: number = this.configService.getOrThrow<number>('APP_PORT');
+
     const tableName: string = this.imagesRepository.metadata.tableName;
     savedImage.url = `${protocol}://${host}:${port}/${tableName}/${id}`;
 

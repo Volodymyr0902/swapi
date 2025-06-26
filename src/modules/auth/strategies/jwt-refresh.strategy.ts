@@ -20,7 +20,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('auth.refreshSecret'),
+      secretOrKey: configService.getOrThrow<string>('AUTH_REFRESH_SECRET'),
       passReqToCallback: true,
     });
   }

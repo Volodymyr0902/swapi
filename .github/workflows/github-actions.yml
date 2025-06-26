@@ -1,6 +1,10 @@
 name: My GitHub Actions
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+on:
+  push:
+    branches: [ main, passport ]
+  pull_request:
+    branches: [ main, passport ]
 jobs:
   Integrate:
     runs-on: ubuntu-latest

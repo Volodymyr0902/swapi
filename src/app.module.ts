@@ -8,7 +8,6 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { SpeciesModule } from './modules/species/species.module';
 import { PlanetsModule } from './modules/planets/planets.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from 'src/config/config-reader';
 import { Image } from './modules/images/entities/image.entity';
 import { Person } from './modules/people/entities/person.entity';
 import { Specie } from './modules/species/entities/specie.entity';
@@ -16,7 +15,6 @@ import { Film } from './modules/films/entities/film.entity';
 import { Vehicle } from './modules/vehicles/entities/vehicle.entity';
 import { Starship } from './modules/starships/entities/starship.entity';
 import { Planet } from './modules/planets/entities/planet.entity';
-import { DbEnvVars } from './common/types/env-vars.type';
 import {
   DB_DRIVER,
   MIGRATIONS_PATH,
@@ -33,13 +31,16 @@ import { Role } from './modules/roles/entities/role.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): DataSourceOptions => ({
         type: DB_DRIVER,
-        ...configService.get<DbEnvVars>('db'),
+        host: configService.getOrThrow<string>('MYSQL_HOST'),
+        port: configService.getOrThrow<number>('MYSQL_PORT'),
+        username: configService.getOrThrow<string>('MYSQL_USER'),
+        password: configService.getOrThrow<string>('MYSQL_PASSWORD'),
+        database: configService.getOrThrow<string>('MYSQL_DATABASE'),
         entities: [
           Image,
           Person,

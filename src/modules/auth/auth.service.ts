@@ -49,7 +49,7 @@ export class AuthService {
 
   async register(registerDto: RegisterReqDto): Promise<SafeUser> {
     const { password } = registerDto;
-    const salt: string = this.configService.getOrThrow<string>('auth.salt');
+    const salt: number = this.configService.getOrThrow<number>('AUTH_SALT');
     const hash: string = await bcrypt.hash(password, salt);
 
     return this.usersService.create({ ...registerDto, password: hash });
@@ -77,7 +77,7 @@ export class AuthService {
     const accessToken: string = this.accessJwtService.sign(payload);
     const refreshToken: string = this.refreshJwtService.sign(payload);
 
-    const salt: string = this.configService.getOrThrow<string>('auth.salt');
+    const salt: number = this.configService.getOrThrow<number>('AUTH_SALT');
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, salt);
     await this.usersService.updateToken(username, {
       refreshToken: hashedRefreshToken,

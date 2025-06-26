@@ -9,22 +9,28 @@ import {
   PutObjectCommandInput,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { AWSEnvVars } from '../types/env-vars.type';
 
 @Injectable()
 export class StorageService {
   private readonly s3Client: S3Client;
 
   constructor(private readonly configService: ConfigService) {
-    const { region, credentials }: AWSEnvVars =
-      this.configService.getOrThrow<AWSEnvVars>('aws');
+    const region: string = this.configService.getOrThrow<string>('AWS_REGION')
+    const accessKeyId: string = this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID')
+    const secretAccessKey: string = this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY')
 
-    this.s3Client = new S3Client({ region, credentials });
+    this.s3Client = new S3Client({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey
+      }
+    });
   }
 
   async upload(file: Express.Multer.File, key: string): Promise<void> {
     const params: PutObjectCommandInput = {
-      Bucket: this.configService.get<string>('aws.bucket'),
+      Bucket: this.configService.get<string>('AWS_BUCKET'),
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
@@ -36,7 +42,7 @@ export class StorageService {
 
   download(key: string): Promise<GetObjectCommandOutput> {
     const params: GetObjectCommandInput = {
-      Bucket: this.configService.get<string>('aws.bucket'),
+      Bucket: this.configService.get<string>('AWS_BUCKET'),
       Key: key,
     };
 
@@ -46,7 +52,7 @@ export class StorageService {
 
   async drop(key: string): Promise<void> {
     const params = {
-      Bucket: this.configService.get<string>('aws.bucket'),
+      Bucket: this.configService.get<string>('AWS_BUCKET'),
       Key: key,
     };
 
