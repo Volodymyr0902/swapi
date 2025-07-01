@@ -8,7 +8,6 @@ import { map, Observable } from 'rxjs';
 import { ExistingEntity } from '../types/existing-entity.type';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { AppEnvVars } from '../types/env-vars.type';
 import { STR_PROPS_TO_IGNORE } from '../enums/orig-api-str-props-to-ignore.enum';
 import { Planet } from '../../modules/planets/entities/planet.entity';
 

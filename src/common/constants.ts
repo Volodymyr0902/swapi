@@ -1,10 +1,4 @@
-import * as process from 'node:process';
-
 export const SWAPI_API_URL = 'https://swapi.dev/api/';
-
-export const CONFIG_FILE_NAME = 'config.yaml';
-
-export const IMAGES_PATH = `${process.cwd()}/src/data`;
 
 export const IMAGE_MIME_REGEX = /^image\/.*$/;
 

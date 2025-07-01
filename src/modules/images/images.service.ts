@@ -6,7 +6,6 @@ import { Image } from './entities/image.entity';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { BINARY_FILE } from '../../common/constants';
 import { ConfigService } from '@nestjs/config';
-import { AppEnvVars } from '../../common/types/env-vars.type';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { StorageService } from '../../common/services/storage.service';
 import { Readable } from 'stream';

@@ -1,0 +1,41 @@
+services:
+  swapi:
+    image: volodymyr0902/swapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: swapi
+    depends_on:
+      mysql:
+          condition: service_healthy
+    ports:
+      - '8000:8080'
+    env_file: .env
+    networks:
+      - swapiNetwork
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    ports:
+      - '3366:3306'
+    env_file: .env
+    volumes:
+      - swapiVolume:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - swapiNetwork
+
+volumes:
+  swapiVolume:
+    name: swapiVolume
+
+networks:
+  swapiNetwork:
+    name: swapiNetwork
+    driver: bridge

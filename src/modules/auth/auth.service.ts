@@ -3,7 +3,6 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { RegisterReqDto } from './dto/register-req.dto';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SafeUser } from '../users/types/safe-user.type';
 import { ResWithTokensDto } from './dto/res-with-tokens.dto';
@@ -17,7 +16,6 @@ import { UserOnReq } from '../users/types/user-on-req.type';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly configService: ConfigService,
     @Inject(ACCESS_TOKEN_JWT) private readonly accessJwtService: JwtService,
     @Inject(REFRESH_TOKEN_JWT) private readonly refreshJwtService: JwtService,
   ) {}
@@ -49,7 +47,7 @@ export class AuthService {
 
   async register(registerDto: RegisterReqDto): Promise<SafeUser> {
     const { password } = registerDto;
-    const salt: number = this.configService.getOrThrow<number>('AUTH_SALT');
+    const salt: string = await bcrypt.genSalt();
     const hash: string = await bcrypt.hash(password, salt);
 
     return this.usersService.create({ ...registerDto, password: hash });
@@ -77,7 +75,7 @@ export class AuthService {
     const accessToken: string = this.accessJwtService.sign(payload);
     const refreshToken: string = this.refreshJwtService.sign(payload);
 
-    const salt: number = this.configService.getOrThrow<number>('AUTH_SALT');
+    const salt: string = await bcrypt.genSalt();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, salt);
     await this.usersService.updateToken(username, {
       refreshToken: hashedRefreshToken,
