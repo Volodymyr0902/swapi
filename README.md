@@ -10,70 +10,77 @@ This project is a RESTful Star Wars API (SWAPI) implementation built using the N
 - **ORM**: [TypeORM](https://typeorm.io/) for database interaction
 - **Validation**: [class-validator](https://github.com/typestack/class-validator) for data validation
 - **File Uploads**: Handled using [Multer](https://github.com/expressjs/multer)
-- **Configuration**: Managed via `config.yaml` for database and application settings
+- **File Storage**: [AWS S3](https://aws.amazon.com/s3/) integration for managing file uploads
+- **Authentication**: [Passport-local](http://www.passportjs.org/packages/passport-local/) and [Passport-jwt](http://www.passportjs.org/packages/passport-jwt/) for user authentication
+- **Authorization**: Role-Based Access Control (RBAC) for managing user permissions
+- **Configuration**: Managed via `.env` for database, application and services settings
 - **API Documentation**: [Swagger](https://swagger.io/) integration for interactive API documentation (available at `/api`)
+- **Containerization**: [Docker](https://www.docker.com/) for consistent runtime environment
+- **CI/CD**: [GitHub Actions](https://github.com/features/actions) workflow for automated testing, linting and Docker image build and publishment
 
-## Prerequisites
+## Configuration
 
-Before running the project, ensure you have the following installed:
+To configure the application, edit the `.env.schema` file in the project's root, provide your own credentials and/or basic variables. Remove '.schema'. part when completed.
 
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- [npm](https://www.npmjs.com/) (v8 or higher)
-- [MySQL](https://www.mysql.com/) (v8 or higher)
+## Running the Application
 
-Additionally, ensure that a MySQL database with the name provided in the `config.yaml` file (e.g., `swapi2`) is already created.
+You can run the application either using Docker or locally on your machine.
 
-## Installation
+## In any case:
 
 1. Clone the repository:
   ```bash
-  git clone <repository-url>
-  cd swapi_nest/swapi
+  git clone https://github.com/Volodymyr0902/swapi
+  cd swapi
   ```
-2. Install dependencies:
+2. Configure your environment variables.
+
+### 1. Running with Docker
+
+1. Ensure [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are installed.
+
+2. Start the application and dependencies:
+  ```bash
+  docker compose up --build
+  ```
+  This will build and start the application along with a MySQL database container.
+
+3. The application will be accessible at the `http://localhost:8000`.
+
+### 2. Running Locally
+
+#### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v22 or higher)
+- [npm](https://www.npmjs.com/) (v8 or higher)
+- [MySQL](https://www.mysql.com/) (v8 or higher)
+
+Ensure a MySQL database (e.g., `swapi2`) is created on your local instance as specified in your `.env` file.
+
+#### Installation
+
+1. Install dependencies:
   ```bash
   npm install
   ```
 
-## Configuration
+#### Running
 
-To configure the application, edit the `config.yaml` file and provide the following details:
-
-### Database Configuration
-
-- **host**: The hostname or IP address of your MySQL database server (e.g., `localhost` or `127.0.0.1`).
-- **port**: The port number on which your MySQL database server is running (default: `3306`).
-- **username**: The username for authenticating with the MySQL database.
-- **password**: The password associated with the specified username.
-- **database**: The name of the MySQL database to be used by the application (e.g., `swapi2`).
-
-### Application Configuration
-
-- **protocol**: The protocol used by the application (e.g., `http` or `https`).
-- **host**: The hostname or IP address where the application will be accessible (e.g., `localhost` or `0.0.0.0`).
-- **port**: The port number on which the application will run (e.g., `3000`).
-
-## Running the Application
-
-1. Before running the application, ensure the application is compiled:
+1. Build the application:
   ```bash
   npm run build
   ```
-
-2. Start the application in development mode:
+2. Start in development mode:
   ```bash
   npm run start:dev
   ```
-3. Start the application in production mode:
+  Or start in production mode:
   ```bash
   npm run start:prod
   ```
 
-In both cases ensure all necessary environment variables are set.
+In both cases, ensure all necessary environment variables are set.
 
-- **Database Migrations**: On the first setup, make sure to run all pending migrations to prepare the database schema:
-  ```bash
-  npm run migration:run
-  ```
+- **Database Migrations**: Migrations are run automatically during setup, so no manual action is required to prepare the database schema.
 
 The application will be accessible at the host and port specified in your configuration (e.g., `http://<host>:<port>`).
