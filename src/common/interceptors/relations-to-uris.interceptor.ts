@@ -78,7 +78,8 @@ export class RelationsToUrisInterceptor implements NestInterceptor {
   }
 
   private formURI(tableName: string, id: number): string {
-    const protocol: string = this.configService.getOrThrow<string>('APP_PROTOCOL');
+    const protocol: string =
+      this.configService.getOrThrow<string>('APP_PROTOCOL');
     const host: string = this.configService.getOrThrow<string>('APP_HOST');
     const port: number = this.configService.getOrThrow<number>('APP_PORT');
 

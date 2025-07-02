@@ -7,7 +7,8 @@ import swaggerConfig from './config/swagger-config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap(): Promise<void> {
-  const app: NestApplication = await NestFactory.create<NestApplication>(AppModule);
+  const app: NestApplication =
+    await NestFactory.create<NestApplication>(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
 
   const httpAdapterHost = app.get(HttpAdapterHost);

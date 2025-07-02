@@ -7,12 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { JoinTable, ManyToMany } from 'typeorm';
-import { Specie } from '../../species/entities/specie.entity';
-import { Starship } from '../../starships/entities/starship.entity';
-import { Vehicle } from '../../vehicles/entities/vehicle.entity';
-import { Person } from '../../people/entities/person.entity';
-import { Planet } from '../../planets/entities/planet.entity';
+
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema({ name: 'CreateFilm', description: 'DTO for Film creation' })

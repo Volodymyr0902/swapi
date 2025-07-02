@@ -33,7 +33,8 @@ export class ImagesService {
     const savedImage: Image = await this.imagesRepository.save(newImage);
 
     const { id } = savedImage;
-    const protocol: string = this.configService.getOrThrow<string>('APP_PROTOCOL');
+    const protocol: string =
+      this.configService.getOrThrow<string>('APP_PROTOCOL');
     const host: string = this.configService.getOrThrow<string>('APP_HOST');
     const port: number = this.configService.getOrThrow<number>('APP_PORT');
 

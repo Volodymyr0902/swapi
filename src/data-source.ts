@@ -6,9 +6,9 @@ import {
   MIGRATIONS_PATH,
   MIGRATIONS_TABLE_NAME,
 } from './common/constants';
-import * as process from "node:process";
+import * as process from 'node:process';
 
-dotenv.config()
+dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: DB_DRIVER,
