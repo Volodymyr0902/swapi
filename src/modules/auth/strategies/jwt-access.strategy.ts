@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { UserOnReq } from '../../users/types/user-on-req.type';
+import { UserWithStrRoles } from '../../users/types/user-with-str-roles.type';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -18,7 +18,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     });
   }
 
-  validate(payload: JwtPayload): UserOnReq {
+  validate(payload: JwtPayload): UserWithStrRoles {
     return {
       id: payload.sub,
       username: payload.username,

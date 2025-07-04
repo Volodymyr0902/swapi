@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { IsNotEmpty, IsStrongPassword } from 'class-validator';
+import {IsNotEmpty, IsStrongPassword, Length, Matches} from 'class-validator';
 
 @ApiSchema({ name: 'CreateUser', description: 'DTO for user creation' })
 export class CreateUserReqDto {
@@ -8,6 +8,8 @@ export class CreateUserReqDto {
     description: 'Username used to sign in',
   })
   @IsNotEmpty()
+  @Length(6, 24)
+  @Matches(/^\w{6,24}$/g)
   username: string;
 
   @ApiProperty({
@@ -15,6 +17,7 @@ export class CreateUserReqDto {
     description: 'Password used to sign in',
   })
   @IsNotEmpty()
+  @Length(8, 24)
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,

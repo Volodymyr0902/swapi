@@ -29,9 +29,9 @@ import { ResWithTokensDto } from './dto/res-with-tokens.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
-import { SafeUser } from '../users/types/safe-user.type';
 import { ReqWithUserStrRoles } from './interfaces/req-with-user-str-roles';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import {UserWithStrRoles} from "../users/types/user-with-str-roles.type";
 
 @Controller('auth')
 export class AuthController {
@@ -54,7 +54,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiConflictResponse({ description: HttpStatus['409'] })
   @Post('register')
-  register(@Body() registerDto: RegisterReqDto): Promise<SafeUser> {
+  register(@Body() registerDto: RegisterReqDto): Promise<UserWithStrRoles> {
     return this.authService.register(registerDto);
   }
 

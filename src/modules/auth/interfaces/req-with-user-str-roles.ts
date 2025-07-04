@@ -1,5 +1,5 @@
-import { UserOnReq } from '../../users/types/user-on-req.type';
+import { UserWithStrRoles } from '../../users/types/user-with-str-roles.type';
 
 export interface ReqWithUserStrRoles extends Request {
-  user: UserOnReq;
+  user: UserWithStrRoles;
 }

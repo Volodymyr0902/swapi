@@ -10,7 +10,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { ACCESS_TOKEN_JWT, REFRESH_TOKEN_JWT } from './constants';
 import { Role } from '../roles/entities/role.entity';
-import { UserOnReq } from '../users/types/user-on-req.type';
+import { UserWithStrRoles } from '../users/types/user-with-str-roles.type';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
     return this.getTokens(payload, username);
   }
 
-  async register(registerDto: RegisterReqDto): Promise<SafeUser> {
+  async register(registerDto: RegisterReqDto): Promise<UserWithStrRoles> {
     const { password } = registerDto;
     const salt: string = await bcrypt.genSalt();
     const hash: string = await bcrypt.hash(password, salt);
@@ -57,7 +57,7 @@ export class AuthService {
     return this.usersService.remove(user.username);
   }
 
-  async refresh(user: UserOnReq): Promise<ResWithTokensDto> {
+  async refresh(user: UserWithStrRoles): Promise<ResWithTokensDto> {
     const { username, id, roles } = user;
     const payload: JwtPayload = {
       username,

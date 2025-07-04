@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { UserOnReq } from '../../users/types/user-on-req.type';
+import { UserWithStrRoles } from '../../users/types/user-with-str-roles.type';
 import { UsersService } from '../../users/users.service';
 import { ReqWithUserStrRoles } from '../interfaces/req-with-user-str-roles';
 import * as bcrypt from 'bcrypt';
@@ -28,7 +28,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(
     req: ReqWithUserStrRoles,
     payload: JwtPayload,
-  ): Promise<UserOnReq> {
+  ): Promise<UserWithStrRoles> {
     const refreshTokenInput: string | null =
       ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     const { sub: id, username, roles } = payload;
