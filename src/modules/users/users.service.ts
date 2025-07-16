@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { RelationsCompleterService } from '../../common/services/relations-completer.service';
 import { UpdateTokenDto } from './dto/update-token.dto';
-import {UserWithStrRoles} from "./types/user-with-str-roles.type";
 
 @Injectable()
 export class UsersService {
@@ -15,23 +14,16 @@ export class UsersService {
     private readonly relationsCompleter: RelationsCompleterService<User>,
   ) {}
 
-  async create(createUserDto: CreateUserReqDto): Promise<UserWithStrRoles> {
+  async create(createUserDto: CreateUserReqDto): Promise<User> {
     const { username: usernameDto } = createUserDto;
     if (await this.userRepository.existsBy({ username: usernameDto })) {
       throw new ConflictException('', 'User with this username already exists');
     }
 
-    const newUser: User = await this.relationsCompleter.forCreate(
-      createUserDto,
-      User,
-    );
+    const newUser: User =
+      await this.relationsCompleter.forCreate(createUserDto);
 
-    const { id, username, roles } = await this.userRepository.save(newUser);
-    return {
-      id,
-      username,
-      roles: roles.map((role) => role.name),
-    };
+    return this.userRepository.save(newUser);
   }
 
   findOne(username: string): Promise<User> {

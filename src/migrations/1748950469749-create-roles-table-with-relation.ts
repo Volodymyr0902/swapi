@@ -2,7 +2,6 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 import { Role } from '../modules/roles/entities/role.entity';
 import { ExistingRoles } from '../modules/roles/enums/roles.enum';
 import * as bcrypt from 'bcrypt';
-import { SafeUser } from '../modules/users/types/safe-user.type';
 
 export class CreateRolesTableWithRelation1748950469749
   implements MigrationInterface

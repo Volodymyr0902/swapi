@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Transform } from 'class-transformer';
 
 @Entity('roles')
 export class Role {
@@ -15,6 +16,7 @@ export class Role {
   @Column()
   name: string;
 
+  @Transform(({ value }) => value.map((user: User) => user.username))
   @ManyToMany(() => User, (user) => user.roles, {
     onDelete: 'CASCADE',
     eager: true,

@@ -3,10 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { UserWithStrRoles } from '../../users/types/user-with-str-roles.type';
 import { UsersService } from '../../users/users.service';
-import { ReqWithUserStrRoles } from '../interfaces/req-with-user-str-roles';
-import * as bcrypt from 'bcrypt';
+import { ReqWithSerializedUser } from '../../../common/interfaces/req-with-serialized-user.interface';
+import { SerializedUser } from '../../users/types/serialized-user.type';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,9 +25,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(
-    req: ReqWithUserStrRoles,
+    req: ReqWithSerializedUser,
     payload: JwtPayload,
-  ): Promise<UserWithStrRoles> {
+  ): Promise<SerializedUser> {
     const refreshTokenInput: string | null =
       ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     const { sub: id, username, roles } = payload;
@@ -38,12 +37,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       throw new UnauthorizedException('', 'Refresh token does not exist');
     }
 
-    const isMatch: boolean = await bcrypt.compare(
-      refreshTokenInput,
-      refreshToken,
-    );
-
-    if (!isMatch) {
+    if (refreshTokenInput !== refreshToken) {
       throw new UnauthorizedException(
         '',
         'Refresh token does not match local one.',

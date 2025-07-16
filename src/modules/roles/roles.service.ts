@@ -3,7 +3,6 @@ import { Role } from './entities/role.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class RolesService {
@@ -15,16 +14,13 @@ export class RolesService {
     const { page, limit } = paginationDto;
     const skip: number = page * limit - limit;
 
-    const roles: Role[] = await this.roleRepository.find({
+    return this.roleRepository.find({
       skip,
       take: limit,
     });
-
-    return instanceToPlain(roles) as Role[];
   }
 
   async findOne(name: string): Promise<Role> {
-    const role: Role = await this.roleRepository.findOneByOrFail({ name });
-    return instanceToPlain(role) as Role;
+    return this.roleRepository.findOneByOrFail({ name });
   }
 }

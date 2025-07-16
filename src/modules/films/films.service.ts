@@ -16,10 +16,8 @@ export class FilmsService {
   ) {}
 
   async create(createFilmDto: CreateFilmDto): Promise<Film> {
-    const newFilm: Film = await this.relationsCompleter.forCreate(
-      createFilmDto,
-      Film,
-    );
+    const newFilm: Film =
+      await this.relationsCompleter.forCreate(createFilmDto);
     return this.filmsRepository.save(newFilm);
   }
 

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import {IsNotEmpty, IsStrongPassword, Length, Matches} from 'class-validator';
+import { IsNotEmpty, IsStrongPassword, Length, Matches } from 'class-validator';
 
 @ApiSchema({ name: 'CreateUser', description: 'DTO for user creation' })
 export class CreateUserReqDto {

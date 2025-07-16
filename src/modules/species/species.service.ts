@@ -17,10 +17,8 @@ export class SpeciesService {
   ) {}
 
   async create(createSpeciesDto: CreateSpecieDto): Promise<Specie> {
-    const newSpecie: Specie = await this.relationsCompleter.forCreate(
-      createSpeciesDto,
-      Specie,
-    );
+    const newSpecie: Specie =
+      await this.relationsCompleter.forCreate(createSpeciesDto);
     return this.speciesRepository.save(newSpecie);
   }
 

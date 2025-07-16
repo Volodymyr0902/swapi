@@ -17,10 +17,8 @@ export class PlanetsService {
   ) {}
 
   async create(createPlanetDto: CreatePlanetDto): Promise<Planet> {
-    const newPlanet: Planet = await this.relationsCompleterService.forCreate(
-      createPlanetDto,
-      Planet,
-    );
+    const newPlanet: Planet =
+      await this.relationsCompleterService.forCreate(createPlanetDto);
     return this.planetRepository.save(newPlanet);
   }
 

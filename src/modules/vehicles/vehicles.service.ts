@@ -17,10 +17,8 @@ export class VehiclesService {
   ) {}
 
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
-    const newVehicle: Vehicle = await this.relationsCompleter.forCreate(
-      createVehicleDto,
-      Vehicle,
-    );
+    const newVehicle: Vehicle =
+      await this.relationsCompleter.forCreate(createVehicleDto);
     return this.vehicleRepository.save(newVehicle);
   }
 

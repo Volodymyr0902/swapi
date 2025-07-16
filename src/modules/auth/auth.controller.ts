@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,6 +9,7 @@ import {
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -24,14 +26,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LoginReqDto } from './dto/login-req.dto';
-import { ReqWithUserObjRoles } from './interfaces/req-with-user-obj-roles.interface';
 import { ResWithTokensDto } from './dto/res-with-tokens.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
-import { ReqWithUserStrRoles } from './interfaces/req-with-user-str-roles';
+import { ReqWithSerializedUser } from '../../common/interfaces/req-with-serialized-user.interface';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
-import {UserWithStrRoles} from "../users/types/user-with-str-roles.type";
+import { User } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +46,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Req() request: ReqWithUserObjRoles): Promise<ResWithTokensDto> {
+  login(@Req() request: ReqWithSerializedUser): Promise<ResWithTokensDto> {
     return this.authService.login(request.user);
   }
 
@@ -53,8 +54,9 @@ export class AuthController {
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiConflictResponse({ description: HttpStatus['409'] })
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
-  register(@Body() registerDto: RegisterReqDto): Promise<UserWithStrRoles> {
+  async register(@Body() registerDto: RegisterReqDto): Promise<User> {
     return this.authService.register(registerDto);
   }
 
@@ -68,7 +70,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Delete('deleteAccount')
   deleteAccount(
-    @Req() request: ReqWithUserObjRoles,
+    @Req() request: ReqWithSerializedUser,
   ): Promise<GeneralResponseDto> {
     return this.authService.deleteAccount(request.user);
   }
@@ -80,7 +82,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtRefreshAuthGuard)
   @Get('refresh')
-  refresh(@Req() request: ReqWithUserStrRoles): Promise<ResWithTokensDto> {
+  refresh(@Req() request: ReqWithSerializedUser): Promise<ResWithTokensDto> {
     return this.authService.refresh(request.user);
   }
 }

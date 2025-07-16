@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreateDto } from '../types/create-dto.type';
 import { Person } from '../../modules/people/entities/person.entity';
-import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityTarget,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { Film } from '../../modules/films/entities/film.entity';
 import { Specie } from '../../modules/species/entities/specie.entity';
 import { Vehicle } from '../../modules/vehicles/entities/vehicle.entity';
@@ -14,10 +19,15 @@ import { ExistingRoles } from '../../modules/roles/enums/roles.enum';
 
 @Injectable()
 export class RelationsCompleterService<T extends ExistingEntity> {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly entityClass: EntityTarget<T>,
+  ) {}
 
-  async forCreate(createDto: CreateDto, entity: new () => T): Promise<T> {
-    const repository: Repository<T> = this.dataSource.getRepository(entity);
+  async forCreate(createDto: CreateDto): Promise<T> {
+    const repository: Repository<T> = this.dataSource.getRepository<T>(
+      this.entityClass,
+    );
     const newEntity: T = repository.create();
 
     Object.assign(newEntity, createDto);

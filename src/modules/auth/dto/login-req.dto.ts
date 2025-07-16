@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsStrongPassword, Length, Matches} from 'class-validator';
+import { IsNotEmpty, IsStrongPassword, Length, Matches } from 'class-validator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema({ name: 'Login', description: 'DTO for user login' })

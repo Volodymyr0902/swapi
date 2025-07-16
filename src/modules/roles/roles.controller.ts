@@ -6,6 +6,8 @@ import {
   HttpStatus,
   UseGuards,
   Param,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -26,6 +28,7 @@ import { RolesGuard } from './guards/roles.guard';
 @Controller('roles')
 @ApiBearerAuth()
 @UseGuards(JwtAccessAuthGuard, RolesGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 @Roles(ExistingRoles.ADMIN)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

@@ -1,25 +1,26 @@
+import * as bcrypt from 'bcrypt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Strategy } from 'passport-local';
-import { AuthService } from '../auth.service';
-import { SafeUser } from '../../users/types/safe-user.type';
+import { SerializedUser } from '../../users/types/serialized-user.type';
+import { UsersService } from '../../users/users.service';
+import { User } from '../../users/entities/user.entity';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly usersService: UsersService) {
     super();
   }
 
-  async validate(username: string, password: string): Promise<SafeUser> {
-    const user: SafeUser | null = await this.authService.validateUser(
-      username,
-      password,
-    );
+  async validate(username: string, password: string): Promise<SerializedUser> {
+    const user: User = await this.usersService.findOne(username);
+    const isMatch: boolean = await bcrypt.compare(password, user.password);
 
-    if (!user) {
+    if (!isMatch) {
       throw new UnauthorizedException('', 'Invalid credentials');
     }
 
-    return user;
+    return instanceToPlain(user) as SerializedUser;
   }
 }

@@ -17,10 +17,8 @@ export class StarshipsService {
   ) {}
 
   async create(createStarshipDto: CreateStarshipDto): Promise<Starship> {
-    const newStarship: Starship = await this.relationsCompleter.forCreate(
-      createStarshipDto,
-      Starship,
-    );
+    const newStarship: Starship =
+      await this.relationsCompleter.forCreate(createStarshipDto);
     return this.starshipRepository.save(newStarship);
   }
 

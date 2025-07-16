@@ -16,10 +16,8 @@ export class PeopleService {
   ) {}
 
   async create(createPersonDto: CreatePersonDto): Promise<Person> {
-    const person: Person = await this.relationsCompleter.forCreate(
-      createPersonDto,
-      Person,
-    );
+    const person: Person =
+      await this.relationsCompleter.forCreate(createPersonDto);
     return this.personRepository.save(person);
   }
 
