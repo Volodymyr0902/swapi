@@ -33,17 +33,12 @@ export class UsersService {
     });
   }
 
-  async updateToken(
-    username: string,
-    updateTokenDto: UpdateTokenDto,
-  ): Promise<GeneralResponseDto> {
-    await this.userRepository.findOneByOrFail({ username });
-    const { affected } = await this.userRepository.update(
-      { username },
-      updateTokenDto,
-    );
-    return { success: !!affected };
-  }
+  // async updateToken(
+  //   username: string,
+  //   updateTokenDto: UpdateTokenDto,
+  // ): Promise<GeneralResponseDto> {
+  //
+  // }
 
   async remove(username: string): Promise<GeneralResponseDto> {
     await this.userRepository.findOneByOrFail({ username });

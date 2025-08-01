@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { SerializedUser } from '../../users/types/serialized-user.type';
+import {CustomRequest} from "../../../common/interfaces/custom-request.interface";
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -15,10 +16,13 @@ export class JwtAccessStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('AUTH_ACCESS_SECRET'),
+      passReqToCallback: true
     });
   }
 
-  validate(payload: JwtPayload): SerializedUser {
+  validate(req: CustomRequest, payload: JwtPayload): SerializedUser {
+    req.sid = payload.sid;
+
     return {
       id: payload.sub,
       username: payload.username,

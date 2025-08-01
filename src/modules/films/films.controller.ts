@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilmsService } from './films.service';
@@ -29,11 +28,10 @@ import { RelationsToUrisInterceptor } from '../../common/interceptors/relations-
 import { Film } from './entities/film.entity';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
-import { RolesGuard } from '../roles/guards/roles.guard';
 import { Roles } from '../roles/decorators/roles.decorator';
 import { ExistingRoles } from '../roles/enums/roles.enum';
 
+@ApiBearerAuth()
 @Controller('films')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -43,9 +41,7 @@ export class FilmsController {
   @ApiOperation({ summary: 'Creates film' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
-  @ApiBearerAuth()
   @Post()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   create(@Body() createFilmDto: CreateFilmDto): Promise<Film> {
     return this.filmsService.create(createFilmDto);
@@ -73,9 +69,7 @@ export class FilmsController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
   @Patch(':id')
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   update(
     @Param('id') id: string,
@@ -87,9 +81,7 @@ export class FilmsController {
   @ApiOperation({ summary: 'Deletes film' })
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
   @Delete(':id')
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {
     return this.filmsService.remove(+id);

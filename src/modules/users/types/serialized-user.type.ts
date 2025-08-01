@@ -2,7 +2,7 @@ import { User } from '../entities/user.entity';
 
 export type SerializedUser = Omit<
   User,
-  'password' | 'refreshToken' | 'roles'
+  'password' | 'roles'
 > & {
   roles: string[];
 };

@@ -9,7 +9,6 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
-  UseGuards,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
@@ -29,11 +28,10 @@ import { RelationsToUrisInterceptor } from '../../common/interceptors/relations-
 import { Person } from './entities/person.entity';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { ExistingRoles } from '../roles/enums/roles.enum';
 import { Roles } from '../roles/decorators/roles.decorator';
-import { RolesGuard } from '../roles/guards/roles.guard';
 
+@ApiBearerAuth()
 @Controller('people')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -43,8 +41,6 @@ export class PeopleController {
   @ApiOperation({ summary: 'Creates person' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Post()
   create(@Body() createPersonDto: CreatePersonDto): Promise<Person> {
@@ -73,8 +69,6 @@ export class PeopleController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
@@ -87,8 +81,6 @@ export class PeopleController {
   @ApiOperation({ summary: 'Deletes person' })
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {

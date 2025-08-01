@@ -4,7 +4,6 @@ import {
   Query,
   ParseEnumPipe,
   HttpStatus,
-  UseGuards,
   Param,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -21,13 +20,10 @@ import {
   ApiOperation,
   ApiParam,
 } from '@nestjs/swagger';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { Roles } from './decorators/roles.decorator';
-import { RolesGuard } from './guards/roles.guard';
 
-@Controller('roles')
 @ApiBearerAuth()
-@UseGuards(JwtAccessAuthGuard, RolesGuard)
+@Controller('roles')
 @UseInterceptors(ClassSerializerInterceptor)
 @Roles(ExistingRoles.ADMIN)
 export class RolesController {

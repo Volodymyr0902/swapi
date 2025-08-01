@@ -1,4 +1,4 @@
-export class ResWithTokensDto {
+export class TokensPairDto {
   accessToken: string;
   refreshToken: string;
 }

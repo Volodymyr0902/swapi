@@ -1,4 +1,5 @@
-import { HttpAdapterHost, NestApplication, NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -7,8 +8,8 @@ import swaggerConfig from './config/swagger-config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap(): Promise<void> {
-  const app: NestApplication =
-    await NestFactory.create<NestApplication>(AppModule);
+  const app: NestExpressApplication =
+    await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
 
   const httpAdapterHost = app.get(HttpAdapterHost);
@@ -24,6 +25,8 @@ async function bootstrap(): Promise<void> {
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, documentFactory);
+
+  app.set('trust proxy', 'loopback');
 
   const port: number = configService.get<number>('APP_PORT') ?? 3000;
   await app.listen(port);

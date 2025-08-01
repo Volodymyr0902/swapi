@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { ReqWithSerializedUser } from '../../../common/interfaces/req-with-serialized-user.interface';
+import { CustomRequest } from '../../../common/interfaces/custom-request.interface';
 import { ExistingRoles } from '../enums/roles.enum';
 
 @Injectable()
@@ -15,10 +15,10 @@ export class RolesGuard implements CanActivate {
     );
 
     if (!requiredRoles) {
-      return true;
+      return true
     }
 
-    const { user } = context.switchToHttp().getRequest<ReqWithSerializedUser>();
+    const { user } = context.switchToHttp().getRequest<CustomRequest>();
     return requiredRoles.every((role: string): boolean =>
       user.roles?.includes(role),
     );

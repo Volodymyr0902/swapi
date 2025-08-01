@@ -9,7 +9,6 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
-  UseGuards,
 } from '@nestjs/common';
 import { PlanetsService } from './planets.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
@@ -29,11 +28,10 @@ import { RelationsToUrisInterceptor } from '../../common/interceptors/relations-
 import { Planet } from './entities/planet.entity';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { ExistingRoles } from '../roles/enums/roles.enum';
 import { Roles } from '../roles/decorators/roles.decorator';
-import { RolesGuard } from '../roles/guards/roles.guard';
 
+@ApiBearerAuth()
 @Controller('planets')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -43,8 +41,6 @@ export class PlanetsController {
   @ApiOperation({ summary: 'Creates planet' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Post()
   create(@Body() createPlanetDto: CreatePlanetDto): Promise<Planet> {
@@ -73,8 +69,6 @@ export class PlanetsController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
@@ -87,8 +81,6 @@ export class PlanetsController {
   @ApiOperation({ summary: 'Deletes planet' })
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {

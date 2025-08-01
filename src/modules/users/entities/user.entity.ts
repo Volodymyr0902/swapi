@@ -18,10 +18,6 @@ export class User {
   @ManyToMany(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   roles: Role[];
 
-  @Column({ nullable: true })
-  @Exclude()
-  refreshToken: string;
-
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }

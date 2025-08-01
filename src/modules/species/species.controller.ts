@@ -9,7 +9,6 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
-  UseGuards,
 } from '@nestjs/common';
 import { SpeciesService } from './species.service';
 import { CreateSpecieDto } from './dto/create-specie.dto';
@@ -29,11 +28,10 @@ import { RelationsToUrisInterceptor } from '../../common/interceptors/relations-
 import { Specie } from './entities/specie.entity';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { ExistingRoles } from '../roles/enums/roles.enum';
 import { Roles } from '../roles/decorators/roles.decorator';
-import { RolesGuard } from '../roles/guards/roles.guard';
 
+@ApiBearerAuth()
 @Controller('species')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -43,8 +41,6 @@ export class SpeciesController {
   @ApiOperation({ summary: 'Creates species' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Post()
   create(@Body() createSpeciesDto: CreateSpecieDto): Promise<Specie> {
@@ -73,8 +69,6 @@ export class SpeciesController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
@@ -87,8 +81,6 @@ export class SpeciesController {
   @ApiOperation({ summary: 'Deletes species' })
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {

@@ -3,15 +3,15 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  Get,
+  Get, Headers,
   HttpCode,
-  HttpStatus,
+  HttpStatus, Ip,
   Post,
   Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RegisterReqDto } from './dto/register-req.dto';
 import {
@@ -19,20 +19,20 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
-  ApiCreatedResponse,
+  ApiCreatedResponse, ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LoginReqDto } from './dto/login-req.dto';
-import { ResWithTokensDto } from './dto/res-with-tokens.dto';
+import { TokensPairDto } from './dto/tokens-pair.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
-import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
-import { ReqWithSerializedUser } from '../../common/interfaces/req-with-serialized-user.interface';
+import { CustomRequest } from '../../common/interfaces/custom-request.interface';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { User } from '../users/entities/user.entity';
+import {SkipAccess} from "./decorators/public.decorator";
 
 @Controller('auth')
 export class AuthController {
@@ -42,18 +42,23 @@ export class AuthController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiUnauthorizedResponse({ description: HttpStatus['401'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @ApiHeader({ name: 'User-Agent', required: false })
   @ApiBody({ type: LoginReqDto })
+  @SkipAccess()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Req() request: ReqWithSerializedUser): Promise<ResWithTokensDto> {
-    return this.authService.login(request.user);
+  login(@Req() request: CustomRequest, @Ip() ip: string, @Headers('User-Agent') userAgent: string): Promise<TokensPairDto> {
+    console.log(ip)
+    console.log(userAgent)
+    return this.authService.login(request.user, ip, userAgent);
   }
 
   @ApiOperation({ summary: 'Registers user' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiConflictResponse({ description: HttpStatus['409'] })
+  @SkipAccess()
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
   async register(@Body() registerDto: RegisterReqDto): Promise<User> {
@@ -66,11 +71,10 @@ export class AuthController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @ApiUnauthorizedResponse({ description: HttpStatus['401'] })
   @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard)
   @UseGuards(LocalAuthGuard)
   @Delete('deleteAccount')
   deleteAccount(
-    @Req() request: ReqWithSerializedUser,
+    @Req() request: CustomRequest,
   ): Promise<GeneralResponseDto> {
     return this.authService.deleteAccount(request.user);
   }
@@ -79,10 +83,32 @@ export class AuthController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @ApiUnauthorizedResponse({ description: HttpStatus['401'] })
+  @ApiHeader({ name: 'User-Agent', required: false })
   @ApiBearerAuth()
+  @SkipAccess()
   @UseGuards(JwtRefreshAuthGuard)
   @Get('refresh')
-  refresh(@Req() request: ReqWithSerializedUser): Promise<ResWithTokensDto> {
-    return this.authService.refresh(request.user);
+  refresh(@Req() request: CustomRequest, @Ip() ip: string, @Headers('User-Agent') userAgent: string): Promise<TokensPairDto> {
+    return this.authService.refresh(request.user, ip, userAgent, request.sid);
+  }
+
+  @ApiOperation({ summary: 'Logs user out and drops current session' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @ApiUnauthorizedResponse({ description: HttpStatus['401'] })
+  @ApiBearerAuth()
+  @Get('logout')
+  logout(@Req() request: CustomRequest): Promise<GeneralResponseDto> {
+    return this.authService.logoutCurrent(request.user, request.sid);
+  }
+
+  @ApiOperation({ summary: 'Logs user out and drops all sessions' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @ApiUnauthorizedResponse({ description: HttpStatus['401'] })
+  @ApiBearerAuth()
+  @Get('logoutAll')
+  logoutAll(@Req() request: CustomRequest): Promise<GeneralResponseDto> {
+    return this.authService.logoutAll(request.user);
   }
 }

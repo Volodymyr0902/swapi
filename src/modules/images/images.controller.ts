@@ -38,6 +38,7 @@ import { ExistingRoles } from '../roles/enums/roles.enum';
 import { Roles } from '../roles/decorators/roles.decorator';
 import { RolesGuard } from '../roles/guards/roles.guard';
 
+@ApiBearerAuth()
 @Controller('images')
 @Roles(ExistingRoles.USER)
 @UseInterceptors(GeneralResponseInterceptor, NoContentInterceptor)
@@ -48,9 +49,7 @@ export class ImagesController {
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
   @ApiConsumes('multipart/form-data')
-  @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('file'))
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Post()
   create(
@@ -86,8 +85,6 @@ export class ImagesController {
   @ApiOperation({ summary: 'Deletes image and its metadata' })
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessAuthGuard, RolesGuard)
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<GeneralResponseDto> {
