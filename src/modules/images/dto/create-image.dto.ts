@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt } from 'class-validator';
+import { IsIn, IsInt, IsPositive, Max } from 'class-validator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { EXISTING_ENTITIES } from '../../../common/enums/existing-entities.enum';
 
@@ -14,6 +14,8 @@ export class CreateImageDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   entityId: number;
 
   @ApiProperty({

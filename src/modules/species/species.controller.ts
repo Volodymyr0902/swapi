@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SpeciesService } from './species.service';
 import { CreateSpecieDto } from './dto/create-specie.dto';
@@ -61,7 +62,7 @@ export class SpeciesController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Specie> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Specie> {
     return this.speciesService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class SpeciesController {
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateSpeciesDto: UpdateSpecieDto,
   ): Promise<Specie> {
     return this.speciesService.update(+id, updateSpeciesDto);
@@ -83,7 +84,7 @@ export class SpeciesController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.speciesService.remove(+id);
   }
 }

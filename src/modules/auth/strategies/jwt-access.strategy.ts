@@ -2,9 +2,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { JwtAccessRefreshPayload } from '../interfaces/jwt-access-refresh-payload.interface';
 import { SerializedUser } from '../../users/types/serialized-user.type';
-import {CustomRequest} from "../../../common/interfaces/custom-request.interface";
+import { CustomRequest } from '../../../common/interfaces/custom-request.interface';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -16,16 +16,20 @@ export class JwtAccessStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('AUTH_ACCESS_SECRET'),
-      passReqToCallback: true
+      passReqToCallback: true,
     });
   }
 
-  validate(req: CustomRequest, payload: JwtPayload): SerializedUser {
+  validate(
+    req: CustomRequest,
+    payload: JwtAccessRefreshPayload,
+  ): SerializedUser {
     req.sid = payload.sid;
 
     return {
       id: payload.sub,
       username: payload.username,
+      email: payload.email,
       roles: payload.roles,
     };
   }

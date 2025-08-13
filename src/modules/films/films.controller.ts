@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -61,7 +62,7 @@ export class FilmsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Film> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Film> {
     return this.filmsService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class FilmsController {
   @Patch(':id')
   @Roles(ExistingRoles.ADMIN)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateFilmDto: UpdateFilmDto,
   ): Promise<Film> {
     return this.filmsService.update(+id, updateFilmDto);
@@ -83,7 +84,7 @@ export class FilmsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Delete(':id')
   @Roles(ExistingRoles.ADMIN)
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.filmsService.remove(+id);
   }
 }

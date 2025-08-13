@@ -5,7 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import * as multer from 'multer';
 import { Image } from './entities/image.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StorageService } from '../../common/services/storage.service';
+import { ImgStorageService } from '../../common/services/img-storage.service';
 
 @Module({
   imports: [
@@ -15,6 +15,6 @@ import { StorageService } from '../../common/services/storage.service';
     TypeOrmModule.forFeature([Image]),
   ],
   controllers: [ImagesController],
-  providers: [ImagesService, StorageService],
+  providers: [ImagesService, ImgStorageService],
 })
 export class ImagesModule {}

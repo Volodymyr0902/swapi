@@ -2,10 +2,13 @@ import {
   ArrayUnique,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
@@ -17,6 +20,8 @@ export class CreatePersonDto {
     example: 'Luke Skywalker',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(1, 50)
   name: string;
 
   @ApiProperty({
@@ -25,6 +30,8 @@ export class CreatePersonDto {
     example: '19 BBY',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(5, 15)
   birth_year: string;
 
   @ApiPropertyOptional({
@@ -34,6 +41,8 @@ export class CreatePersonDto {
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
   eye_color: string;
 
   @ApiPropertyOptional({
@@ -42,6 +51,8 @@ export class CreatePersonDto {
     example: 'Male',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
   gender: string;
 
   @ApiPropertyOptional({
@@ -51,6 +62,8 @@ export class CreatePersonDto {
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
   hair_color: string;
 
   @ApiProperty({
@@ -60,6 +73,7 @@ export class CreatePersonDto {
   @Type(() => Number)
   @IsNumber()
   @IsPositive()
+  @Max(500)
   height: string;
 
   @ApiProperty({
@@ -69,6 +83,7 @@ export class CreatePersonDto {
   @Type(() => Number)
   @IsNumber()
   @IsPositive()
+  @Max(500)
   mass: string;
 
   @ApiProperty({
@@ -76,6 +91,8 @@ export class CreatePersonDto {
     example: 'Fair',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 20)
   skin_color: string;
 
   @ApiPropertyOptional({
@@ -85,6 +102,8 @@ export class CreatePersonDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(100)
   homeworld: number;
 
   @ApiPropertyOptional({
@@ -96,6 +115,8 @@ export class CreatePersonDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(100, { each: true })
   @ArrayUnique()
   films: number[];
 
@@ -109,6 +130,8 @@ export class CreatePersonDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   species: number[];
 
@@ -122,6 +145,8 @@ export class CreatePersonDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   starships: number[];
 
@@ -135,6 +160,8 @@ export class CreatePersonDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   vehicles: number[];
 }

@@ -11,14 +11,13 @@ export class User {
   username: string;
 
   @Column()
+  email: string;
+
+  @Column()
   @Exclude()
   password: string;
 
   @Transform(({ value }) => value.map((role: Role) => role.name))
   @ManyToMany(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   roles: Role[];
-
-  constructor(partial: Partial<User>) {
-    Object.assign(this, partial);
-  }
 }

@@ -1,9 +1,13 @@
-import {ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
-import {AuthGuard} from '@nestjs/passport';
-import {TokenExpiredError} from '@nestjs/jwt';
-import {Reflector} from "@nestjs/core";
-import {SKIP_ACCESS} from "../constants";
-import {Observable} from "rxjs";
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { TokenExpiredError } from '@nestjs/jwt';
+import { Reflector } from '@nestjs/core';
+import { SKIP_ACCESS } from '../constants';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class JwtAccessAuthGuard extends AuthGuard('jwt-access') {
@@ -11,11 +15,13 @@ export class JwtAccessAuthGuard extends AuthGuard('jwt-access') {
     super();
   }
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const skipAccess: boolean = this.reflector.getAllAndOverride<boolean>(SKIP_ACCESS, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const skipAccess: boolean = this.reflector.getAllAndOverride<boolean>(
+      SKIP_ACCESS,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (skipAccess) {
       return true;

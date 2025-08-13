@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PlanetsService } from './planets.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
@@ -61,7 +62,7 @@ export class PlanetsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Planet> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Planet> {
     return this.planetsService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class PlanetsController {
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updatePlanetDto: UpdatePlanetDto,
   ): Promise<Planet> {
     return this.planetsService.update(+id, updatePlanetDto);
@@ -83,7 +84,7 @@ export class PlanetsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.planetsService.remove(+id);
   }
 }

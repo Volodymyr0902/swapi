@@ -1,9 +1,5 @@
 export const SWAPI_API_URL = 'https://swapi.dev/api/';
 
-export const IMAGE_MIME_REGEX = /^image\/.*$/;
-
-export const BINARY_FILE = 'application/octet-stream';
-
 export const DB_DRIVER = 'mysql';
 
 export const ENTITIES_PATH = './dist/**/*.entity{.ts,.js}';

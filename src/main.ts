@@ -1,11 +1,16 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import swaggerConfig from './config/swagger-config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { DtoValidationPipe } from './common/pipes/dto-validation.pipe';
 
 async function bootstrap(): Promise<void> {
   const app: NestExpressApplication =
@@ -15,12 +20,7 @@ async function bootstrap(): Promise<void> {
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(new DtoValidationPipe());
 
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);

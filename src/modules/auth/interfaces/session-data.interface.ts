@@ -1,4 +1,4 @@
 export interface SessionData {
-    refreshToken: string;
-    clientInfoDigest: string;
+  refreshToken: string;
+  clientInfoDigest: string;
 }

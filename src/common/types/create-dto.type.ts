@@ -6,7 +6,6 @@ import { CreateSpecieDto } from '../../modules/species/dto/create-specie.dto';
 import { CreateVehicleDto } from '../../modules/vehicles/dto/create-vehicle.dto';
 import { CreateImageDto } from '../../modules/images/dto/create-image.dto';
 import { CreateUserReqDto } from '../../modules/users/dto/create-user-req.dto';
-import { CreateRoleDto } from '../../modules/roles/dto/create-role.dto';
 
 export type CreateDto =
   | CreatePersonDto
@@ -16,5 +15,4 @@ export type CreateDto =
   | CreateSpecieDto
   | CreateVehicleDto
   | CreateImageDto
-  | CreateUserReqDto
-  | CreateRoleDto;
+  | CreateUserReqDto;

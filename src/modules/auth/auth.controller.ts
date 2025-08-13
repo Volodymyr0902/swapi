@@ -3,9 +3,11 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  Get, Headers,
+  Get,
+  Headers,
   HttpCode,
-  HttpStatus, Ip,
+  HttpStatus,
+  Ip,
   Post,
   Req,
   UseGuards,
@@ -19,12 +21,14 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
-  ApiCreatedResponse, ApiHeader,
+  ApiCreatedResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { LoginReqDto } from './dto/login-req.dto';
 import { TokensPairDto } from './dto/tokens-pair.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
@@ -32,8 +36,13 @@ import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { CustomRequest } from '../../common/interfaces/custom-request.interface';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { User } from '../users/entities/user.entity';
-import {SkipAccess} from "./decorators/public.decorator";
+import { SkipAccess } from './decorators/public.decorator';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { JwtOneTimeGuard } from './guards/jwt-one-time.guard';
+import { AUTH_THROTTLE_LIMIT, AUTH_THROTTLE_TTL } from './constants';
 
+@Throttle({ default: { ttl: AUTH_THROTTLE_TTL, limit: AUTH_THROTTLE_LIMIT } })
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -48,9 +57,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Req() request: CustomRequest, @Ip() ip: string, @Headers('User-Agent') userAgent: string): Promise<TokensPairDto> {
-    console.log(ip)
-    console.log(userAgent)
+  login(
+    @Req() request: CustomRequest,
+    @Ip() ip: string,
+    @Headers('User-Agent') userAgent: string,
+  ): Promise<TokensPairDto> {
     return this.authService.login(request.user, ip, userAgent);
   }
 
@@ -73,10 +84,8 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(LocalAuthGuard)
   @Delete('deleteAccount')
-  deleteAccount(
-    @Req() request: CustomRequest,
-  ): Promise<GeneralResponseDto> {
-    return this.authService.deleteAccount(request.user);
+  deleteAccount(@Req() request: CustomRequest): Promise<GeneralResponseDto> {
+    return this.authService.deleteAccount(request.user.id);
   }
 
   @ApiOperation({ summary: 'Returns new pair of tokens' })
@@ -88,7 +97,11 @@ export class AuthController {
   @SkipAccess()
   @UseGuards(JwtRefreshAuthGuard)
   @Get('refresh')
-  refresh(@Req() request: CustomRequest, @Ip() ip: string, @Headers('User-Agent') userAgent: string): Promise<TokensPairDto> {
+  refresh(
+    @Req() request: CustomRequest,
+    @Ip() ip: string,
+    @Headers('User-Agent') userAgent: string,
+  ): Promise<TokensPairDto> {
     return this.authService.refresh(request.user, ip, userAgent, request.sid);
   }
 
@@ -99,7 +112,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('logout')
   logout(@Req() request: CustomRequest): Promise<GeneralResponseDto> {
-    return this.authService.logoutCurrent(request.user, request.sid);
+    return this.authService.logoutCurrent(request.user.id, request.sid);
   }
 
   @ApiOperation({ summary: 'Logs user out and drops all sessions' })
@@ -109,6 +122,33 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('logoutAll')
   logoutAll(@Req() request: CustomRequest): Promise<GeneralResponseDto> {
-    return this.authService.logoutAll(request.user);
+    return this.authService.logoutAll(request.user.id);
+  }
+
+  @ApiOperation({ summary: 'Logs user out and drops all sessions' })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @SkipAccess()
+  @Post('forgotPassword')
+  forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<GeneralResponseDto> {
+    return this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
+  }
+
+  @ApiOperation({ summary: "Changes user's password" })
+  @ApiOkResponse({ description: HttpStatus['200'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
+  @SkipAccess()
+  @UseGuards(JwtOneTimeGuard)
+  @Post('resetPassword')
+  resetPassword(
+    @Req() request: CustomRequest,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(
+      request.user.id,
+      resetPasswordDto.newPassword,
+    );
   }
 }

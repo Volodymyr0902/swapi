@@ -1,5 +1,12 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { IsNotEmpty, IsStrongPassword, Length, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsStrongPassword,
+  Length,
+  Matches,
+} from 'class-validator';
 
 @ApiSchema({ name: 'CreateUser', description: 'DTO for user creation' })
 export class CreateUserReqDto {
@@ -7,15 +14,28 @@ export class CreateUserReqDto {
     example: 'johnDou',
     description: 'Username used to sign in',
   })
+  @IsString()
   @IsNotEmpty()
-  @Length(6, 24)
-  @Matches(/^\w{6,24}$/g)
+  @Matches(/^\w{6,24}$/g, {
+    message: 'username must contain 6-24 symbols, only letters or numbers',
+  })
   username: string;
+
+  @ApiProperty({
+    example: 'mail@example.com',
+    description: 'Email address',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 32)
+  @IsEmail()
+  email: string;
 
   @ApiProperty({
     example: 'sUpeRSeCrEtP@ssw0rd',
     description: 'Password used to sign in',
   })
+  @IsString()
   @IsNotEmpty()
   @Length(8, 24)
   @IsStrongPassword({

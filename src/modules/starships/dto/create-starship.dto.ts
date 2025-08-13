@@ -2,9 +2,13 @@ import {
   ArrayUnique,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
@@ -16,6 +20,8 @@ export class CreateStarshipDto {
     example: 'Death Star',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   name: string;
 
   @ApiProperty({
@@ -23,6 +29,8 @@ export class CreateStarshipDto {
     example: 'DS-1 Orbital Battle Station',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 80)
   model: string;
 
   @ApiProperty({
@@ -30,6 +38,8 @@ export class CreateStarshipDto {
     example: 'Deep Space Mobile Battlestation',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   starship_class: string;
 
   @ApiProperty({
@@ -37,6 +47,8 @@ export class CreateStarshipDto {
     example: 'Imperial Department of Military Research, Sienar Fleet Systems',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 80)
   manufacturer: string;
 
   @ApiProperty({
@@ -45,6 +57,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(10000000000000)
   cost_in_credits: string;
 
   @ApiProperty({
@@ -53,6 +67,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(500000)
   length: string;
 
   @ApiProperty({
@@ -62,6 +78,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(500000)
   crew: string;
 
   @ApiProperty({
@@ -71,6 +89,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(1000000)
   passengers: string;
 
   @ApiPropertyOptional({
@@ -81,6 +101,8 @@ export class CreateStarshipDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(10000)
   max_atmosphering_speed: string;
 
   @ApiProperty({
@@ -89,6 +111,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(10)
   hyperdrive_rating: string;
 
   @ApiProperty({
@@ -97,6 +121,8 @@ export class CreateStarshipDto {
     example: '10 MGLT',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 30)
   MGLT: string;
 
   @ApiProperty({
@@ -106,6 +132,8 @@ export class CreateStarshipDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(10000000000000)
   cargo_capacity: string;
 
   @ApiProperty({
@@ -114,6 +142,8 @@ export class CreateStarshipDto {
     example: '3 years',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 30)
   consumables: string;
 
   @ApiPropertyOptional({
@@ -125,6 +155,8 @@ export class CreateStarshipDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(100, { each: true })
   @ArrayUnique()
   films: number[];
 
@@ -138,6 +170,8 @@ export class CreateStarshipDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   @ArrayUnique()
   pilots: number[];
 }

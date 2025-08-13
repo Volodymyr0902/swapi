@@ -2,9 +2,13 @@ import {
   ArrayUnique,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
@@ -16,6 +20,8 @@ export class CreatePlanetDto {
     example: 'Tatooine',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   name: string;
 
   @ApiProperty({
@@ -24,6 +30,8 @@ export class CreatePlanetDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(500000)
   diameter: string;
 
   @ApiProperty({
@@ -33,6 +41,8 @@ export class CreatePlanetDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(100)
   rotation_period: string;
 
   @ApiProperty({
@@ -42,6 +52,8 @@ export class CreatePlanetDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(10000)
   orbital_period: string;
 
   @ApiProperty({
@@ -50,7 +62,9 @@ export class CreatePlanetDto {
     example: '1',
   })
   @Type(() => Number)
-  @IsNumber()
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 30)
   gravity: string;
 
   @ApiProperty({
@@ -60,6 +74,7 @@ export class CreatePlanetDto {
   })
   @Type(() => Number)
   @IsInt()
+  @Max(1_000_000_000_000)
   population: string;
 
   @ApiProperty({
@@ -67,6 +82,8 @@ export class CreatePlanetDto {
     example: 'Arid',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(1, 30)
   climate: string;
 
   @ApiProperty({
@@ -74,6 +91,8 @@ export class CreatePlanetDto {
     example: 'Dessert',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(1, 30)
   terrain: string;
 
   @ApiProperty({
@@ -83,6 +102,7 @@ export class CreatePlanetDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @Max(100)
   surface_water: string;
 
   @ApiPropertyOptional({
@@ -94,6 +114,8 @@ export class CreatePlanetDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   @ArrayUnique()
   residents: number[];
 
@@ -106,6 +128,8 @@ export class CreatePlanetDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(100, { each: true })
   @ArrayUnique()
   films: number[];
 }

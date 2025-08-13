@@ -11,7 +11,7 @@ import {
 } from '@aws-sdk/client-s3';
 
 @Injectable()
-export class StorageService {
+export class ImgStorageService {
   private readonly s3Client: S3Client;
 
   constructor(private readonly configService: ConfigService) {

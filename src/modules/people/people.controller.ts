@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
@@ -61,7 +62,7 @@ export class PeopleController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Person> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Person> {
     return this.peopleService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class PeopleController {
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updatePersonDto: UpdatePersonDto,
   ): Promise<Person> {
     return this.peopleService.update(+id, updatePersonDto);
@@ -83,7 +84,7 @@ export class PeopleController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.peopleService.remove(+id);
   }
 }

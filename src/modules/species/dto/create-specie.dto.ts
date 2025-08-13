@@ -2,9 +2,13 @@ import {
   ArrayUnique,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
@@ -16,6 +20,8 @@ export class CreateSpecieDto {
     example: 'Wookie',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   name: string;
 
   @ApiProperty({
@@ -23,6 +29,8 @@ export class CreateSpecieDto {
     example: 'Mammal',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   classification: string;
 
   @ApiProperty({
@@ -30,6 +38,8 @@ export class CreateSpecieDto {
     example: 'Sentient',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   designation: string;
 
   @ApiProperty({
@@ -38,6 +48,8 @@ export class CreateSpecieDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(500)
   average_height: string;
 
   @ApiProperty({
@@ -46,6 +58,8 @@ export class CreateSpecieDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(2000)
   average_lifespan: string;
 
   @ApiPropertyOptional({
@@ -56,6 +70,8 @@ export class CreateSpecieDto {
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 80)
   eye_colors: string;
 
   @ApiPropertyOptional({
@@ -66,6 +82,8 @@ export class CreateSpecieDto {
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 80)
   hair_colors: string;
 
   @ApiPropertyOptional({
@@ -76,6 +94,8 @@ export class CreateSpecieDto {
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 80)
   skin_colors: string;
 
   @ApiProperty({
@@ -83,6 +103,8 @@ export class CreateSpecieDto {
     example: 'Shyriiwook',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 30)
   language: string;
 
   @ApiPropertyOptional({
@@ -93,6 +115,7 @@ export class CreateSpecieDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Max(100)
   homeworld: number;
 
   @ApiPropertyOptional({
@@ -104,6 +127,8 @@ export class CreateSpecieDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   @ArrayUnique()
   people: number[];
 
@@ -116,6 +141,8 @@ export class CreateSpecieDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(100, { each: true })
   @ArrayUnique()
   films: number[];
 }

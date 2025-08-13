@@ -1,14 +1,16 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
 import { CreateImageDto } from './dto/create-image.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Image } from './entities/image.entity';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { BINARY_FILE } from '../../common/constants';
 import { ConfigService } from '@nestjs/config';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
-import { StorageService } from '../../common/services/storage.service';
+import { ImgStorageService } from '../../common/services/img-storage.service';
 import { Readable } from 'stream';
+import { BINARY_FILE } from './constants';
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
+import { ExistingEntity } from '../../common/types/existing-entity.type';
 
 @Injectable()
 export class ImagesService {
@@ -16,7 +18,8 @@ export class ImagesService {
     @InjectRepository(Image)
     private readonly imagesRepository: Repository<Image>,
     private readonly configService: ConfigService,
-    private readonly storageService: StorageService,
+    private readonly storageService: ImgStorageService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(
@@ -25,6 +28,15 @@ export class ImagesService {
   ): Promise<Image> {
     const { entityId, entityName } = createImageDto;
     const fileName: string = file.originalname;
+
+    const relatedEntityMetadata: RelationMetadata =
+      this.imagesRepository.metadata.relations.filter(
+        (relation: RelationMetadata): boolean =>
+          relation.propertyName === entityName,
+      )[0];
+    const relatedEntityRepository: Repository<ExistingEntity> =
+      this.dataSource.getRepository(relatedEntityMetadata.type);
+    await relatedEntityRepository.findOneByOrFail({ id: entityId });
 
     const newImage: Image = this.imagesRepository.create({
       fileName,

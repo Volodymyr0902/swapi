@@ -1,11 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserReqDto } from './dto/create-user-req.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { RelationsCompleterService } from '../../common/services/relations-completer.service';
-import { UpdateTokenDto } from './dto/update-token.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,10 +18,8 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserReqDto): Promise<User> {
-    const { username: usernameDto } = createUserDto;
-    if (await this.userRepository.existsBy({ username: usernameDto })) {
-      throw new ConflictException('', 'User with this username already exists');
-    }
+    const { username, email } = createUserDto;
+    await this.checkExists(username, email);
 
     const newUser: User =
       await this.relationsCompleter.forCreate(createUserDto);
@@ -26,23 +27,46 @@ export class UsersService {
     return this.userRepository.save(newUser);
   }
 
-  findOne(username: string): Promise<User> {
+  findOne(email: string): Promise<User> {
     return this.userRepository.findOneOrFail({
-      where: { username },
+      where: { email },
       relations: ['roles'],
     });
   }
 
-  // async updateToken(
-  //   username: string,
-  //   updateTokenDto: UpdateTokenDto,
-  // ): Promise<GeneralResponseDto> {
-  //
-  // }
-
-  async remove(username: string): Promise<GeneralResponseDto> {
-    await this.userRepository.findOneByOrFail({ username });
-    const { affected } = await this.userRepository.delete({ username });
+  async remove(id: number): Promise<GeneralResponseDto> {
+    await this.userRepository.findOneByOrFail({ id });
+    const { affected } = await this.userRepository.delete(id);
     return { success: !!affected };
+  }
+
+  async updatePasswordOrFail(
+    id: number,
+    password: string,
+  ): Promise<GeneralResponseDto> {
+    const { affected } = await this.userRepository.update(id, { password });
+    if (!affected) {
+      throw new NotFoundException('', 'Failed to update password');
+    }
+    return { success: !!affected };
+  }
+
+  private async checkExists(
+    username: string,
+    email: string,
+  ): Promise<void> | never {
+    const isExistsByUsername: boolean = await this.userRepository.existsBy({
+      username,
+    });
+    if (isExistsByUsername) {
+      throw new ConflictException('', 'User with this username already exists');
+    }
+
+    const isExistsByEmail: boolean = await this.userRepository.existsBy({
+      email,
+    });
+    if (isExistsByEmail) {
+      throw new ConflictException('', 'User with this email already exists');
+    }
   }
 }

@@ -7,7 +7,9 @@ services:
     container_name: swapi
     depends_on:
       mysql:
-          condition: service_healthy
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - '8000:8080'
     env_file: .env
@@ -21,7 +23,7 @@ services:
       - '3366:3306'
     env_file: .env
     volumes:
-      - swapiVolume:/var/lib/mysql
+      - swapiMysqlVolume:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
@@ -31,9 +33,28 @@ services:
     networks:
       - swapiNetwork
 
+  redis:
+    image: redis:8.2.0-alpine
+    container_name: redis
+    ports:
+      - '6389:6379'
+    command: redis-server
+    volumes:
+      - swapiRedisVolume:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - swapiNetwork
+
 volumes:
-  swapiVolume:
-    name: swapiVolume
+  swapiMysqlVolume:
+    name: swapiMysqlVolume
+  swapiRedisVolume:
+    name: swapiRedisVolume
 
 networks:
   swapiNetwork:

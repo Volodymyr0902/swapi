@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ExecutionContext, Module } from '@nestjs/common';
 import { PeopleModule } from './modules/people/people.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ImagesModule } from './modules/images/images.module';
@@ -26,6 +26,14 @@ import { UsersModule } from './modules/users/users.module';
 import { User } from './modules/users/entities/user.entity';
 import { RolesModule } from './modules/roles/roles.module';
 import { Role } from './modules/roles/entities/role.entity';
+import {
+  ThrottlerGuard,
+  ThrottlerLimitDetail,
+  ThrottlerModule,
+  ThrottlerModuleOptions,
+} from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
 @Module({
   imports: [
@@ -59,6 +67,26 @@ import { Role } from './modules/roles/entities/role.entity';
       }),
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService): ThrottlerModuleOptions => ({
+        throttlers: [
+          {
+            ttl: config.getOrThrow<number>('THROTTLE_TTL'),
+            limit: config.getOrThrow<number>('THROTTLE_LIMIT'),
+          },
+        ],
+        errorMessage: (
+          ctx: ExecutionContext,
+          throttlerLimitDetail: ThrottlerLimitDetail,
+        ): string =>
+          `This user is blocked. Try again after ${throttlerLimitDetail.timeToBlockExpire} seconds`,
+        storage: new ThrottlerStorageRedisService(
+          config.getOrThrow<string>('REDIS_THROTTLER_URL'),
+        ),
+      }),
+    }),
     PeopleModule,
     ImagesModule,
     FilmsModule,
@@ -71,6 +99,11 @@ import { Role } from './modules/roles/entities/role.entity';
     RolesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

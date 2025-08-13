@@ -11,14 +11,13 @@ import {
   ParseFilePipe,
   HttpStatus,
   StreamableFile,
-  UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ImageTypeValidator } from './validators/image-type.validator';
-import { IMAGE_MIME_REGEX } from '../../common/constants';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -33,11 +32,18 @@ import { GeneralResponseInterceptor } from '../../common/interceptors/general-re
 import { Image } from './entities/image.entity';
 import { GeneralResponseDto } from '../../common/dto/general-response.dto';
 import { NoContentInterceptor } from '../../common/interceptors/no-content.interceptor';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { ExistingRoles } from '../roles/enums/roles.enum';
 import { Roles } from '../roles/decorators/roles.decorator';
-import { RolesGuard } from '../roles/guards/roles.guard';
+import { Throttle } from '@nestjs/throttler';
+import {
+  IMAGE_MIME_REGEX,
+  IMAGES_THROTTLE_LIMIT,
+  IMAGES_THROTTLE_TTL,
+} from './constants';
 
+@Throttle({
+  default: { ttl: IMAGES_THROTTLE_TTL, limit: IMAGES_THROTTLE_LIMIT },
+})
 @ApiBearerAuth()
 @Controller('images')
 @Roles(ExistingRoles.USER)
@@ -48,6 +54,7 @@ export class ImagesController {
   @ApiOperation({ summary: 'Creates an image related to another item' })
   @ApiCreatedResponse({ description: HttpStatus['201'] })
   @ApiBadRequestResponse({ description: HttpStatus['400'] })
+  @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   @Roles(ExistingRoles.ADMIN)
@@ -78,7 +85,7 @@ export class ImagesController {
   @ApiOkResponse({ description: HttpStatus['200'] })
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<StreamableFile> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<StreamableFile> {
     return this.imagesService.findOne(+id);
   }
 
@@ -87,7 +94,7 @@ export class ImagesController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.imagesService.remove(+id);
   }
 }

@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { StarshipsService } from './starships.service';
 import { CreateStarshipDto } from './dto/create-starship.dto';
@@ -61,7 +62,7 @@ export class StarshipsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Starship> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Starship> {
     return this.starshipsService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class StarshipsController {
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateStarshipDto: UpdateStarshipDto,
   ): Promise<Starship> {
     return this.starshipsService.update(+id, updateStarshipDto);
@@ -83,7 +84,7 @@ export class StarshipsController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.starshipsService.remove(+id);
   }
 }

@@ -2,9 +2,13 @@ import {
   ArrayUnique,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
@@ -16,6 +20,8 @@ export class CreateVehicleDto {
     example: 'Sand Crawler',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   name: string;
 
   @ApiProperty({
@@ -23,6 +29,8 @@ export class CreateVehicleDto {
     example: 'Digger Crawler',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   model: string;
 
   @ApiProperty({
@@ -30,6 +38,8 @@ export class CreateVehicleDto {
     example: 'wheeled',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 30)
   vehicle_class: string;
 
   @ApiProperty({
@@ -37,6 +47,8 @@ export class CreateVehicleDto {
     example: 'Corellia Mining Corporation',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 50)
   manufacturer: string;
 
   @ApiProperty({
@@ -45,6 +57,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(500)
   length: string;
 
   @ApiProperty({
@@ -53,6 +67,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
+  @Max(1000000)
   cost_in_credits: string;
 
   @ApiProperty({
@@ -61,6 +77,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(300)
   crew: string;
 
   @ApiProperty({
@@ -70,6 +88,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(1000)
   passengers: string;
 
   @ApiProperty({
@@ -78,6 +98,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(50000)
   max_atmosphering_speed: string;
 
   @ApiProperty({
@@ -87,6 +109,8 @@ export class CreateVehicleDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(10000000)
   cargo_capacity: string;
 
   @ApiProperty({
@@ -95,6 +119,8 @@ export class CreateVehicleDto {
     example: '2 months',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(3, 30)
   consumables: string;
 
   @ApiPropertyOptional({
@@ -106,6 +132,8 @@ export class CreateVehicleDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(100, { each: true })
   @ArrayUnique()
   films: number[];
 
@@ -119,6 +147,8 @@ export class CreateVehicleDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   @ArrayUnique()
   pilots: number[];
 }

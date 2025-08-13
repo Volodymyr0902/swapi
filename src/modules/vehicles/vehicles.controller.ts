@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -61,7 +62,7 @@ export class VehiclesController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Get(':id')
   @UseInterceptors(RelationsToUrisInterceptor)
-  findOne(@Param('id') id: string): Promise<Vehicle> {
+  findOne(@Param('id', ParseIntPipe) id: string): Promise<Vehicle> {
     return this.vehiclesService.findOne(+id);
   }
 
@@ -72,7 +73,7 @@ export class VehiclesController {
   @Roles(ExistingRoles.ADMIN)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateVehicleDto: UpdateVehicleDto,
   ): Promise<Vehicle> {
     return this.vehiclesService.update(+id, updateVehicleDto);
@@ -83,7 +84,7 @@ export class VehiclesController {
   @ApiNotFoundResponse({ description: HttpStatus['404'] })
   @Roles(ExistingRoles.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<GeneralResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: string): Promise<GeneralResponseDto> {
     return this.vehiclesService.remove(+id);
   }
 }

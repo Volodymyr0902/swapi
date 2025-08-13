@@ -3,8 +3,12 @@ import {
   IsArray,
   IsDate,
   IsInt,
+  IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
+  Length,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -17,6 +21,8 @@ export class CreateFilmDto {
     example: 'A New Hope',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(1, 50)
   title: string;
 
   @ApiProperty({
@@ -25,6 +31,8 @@ export class CreateFilmDto {
   })
   @Type(() => Number)
   @IsInt()
+  @IsPositive()
+  @Max(100)
   episode_id: number;
 
   @ApiProperty({
@@ -33,6 +41,8 @@ export class CreateFilmDto {
       "It is a period of civil war.\\n\\nRebel spaceships, striking\\n\\nfrom a hidden base, have won\\n\\ntheir first victory against\\n\\nthe evil Galactic Empire.\\n\\n\\n\\nDuring the battle, Rebel\\n\\nspies managed to steal secret\\r\\nplans to the Empire's\\n\\nultimate weapon, the DEATH\\n\\nSTAR, an armored space\\n\\nstation with enough power\\n\\nto destroy an entire planet.\\n\\n\\n\\nPursued by the Empire's\\n\\nsinister agents, Princess\\n\\nLeia races home aboard her\\n\\nstarship, custodian of the\\n\\nstolen plans that can save her\\n\\npeople and restore\\n\\nfreedom to the galaxy....",
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(5, 500)
   opening_crawl: string;
 
   @ApiProperty({
@@ -40,6 +50,8 @@ export class CreateFilmDto {
     example: 'George Lucas',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(5, 30)
   director: string;
 
   @ApiProperty({
@@ -47,6 +59,8 @@ export class CreateFilmDto {
     example: 'Gary Kurtz, Rick McCallum',
   })
   @IsString()
+  @IsNotEmpty()
+  @Length(5, 80)
   producer: string;
 
   @ApiProperty({
@@ -66,6 +80,8 @@ export class CreateFilmDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   species: number[];
 
@@ -78,6 +94,8 @@ export class CreateFilmDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   starships: number[];
 
@@ -90,6 +108,8 @@ export class CreateFilmDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   vehicles: number[];
 
@@ -102,6 +122,8 @@ export class CreateFilmDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(250, { each: true })
   @ArrayUnique()
   characters: number[];
 
@@ -114,6 +136,8 @@ export class CreateFilmDto {
   @Type(() => Array<number>)
   @IsArray()
   @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @Max(150, { each: true })
   @ArrayUnique()
   planets: number[];
 }
